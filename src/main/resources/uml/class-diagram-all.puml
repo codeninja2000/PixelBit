@@ -1,0 +1,102 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam classAttributeIconSize 0
+
+class ImageModel {
+- image: EditableImage
+- isModified: boolean = false
++ ImageModel()
++ getImage(): EditableImage
++ setImage(image: EditableImage): void
++ isModified(): boolean
++ setModified(modified: boolean): void
+}
+class ImageView {
+- imageDisplay: Label
+- statusBar: StatusBar
+- toolBar: ToolBar
+- menuBar: MenuBar
+- zoomFactor: double = 1.0
+- originalImage: EditableImage
++ ImageView()
++ displayImage(image: EditableImage): void
++ updateStatus(message: String): void
++ setZoomFactor(zoom: double): void
++ zoomFactor(): double
++ clearImage(): void
++ updateUndoRedoState(canUndo: boolean, canRedo: boolean): void
+}
+class ImageController {
+- model : ImageModel
+- view : ImageView
+- commandManager : CommandManager
++ ImageController(ImageModel model, ImageView view)
++ loadImage(file: File) : void
++ saveImage(file: File) : void
++ applyCommand(command: ImageCommand) : void
++ undo() : void
++ redo() : void
++ refreshView() : void
+ }
+
+class ImageUtility {
+    + {static} loadFromFile(String path) : EditableImage
+    + {static} loadFromFile(File file) : EditableImage
+    + {static} saveToFile(EditableImage image, String path) : void
+}
+
+class EditableImage {
+- image: ImageProcessor
+- filename: String = String.valueOf(System.currentTimeMillis())
+- format: String = "jpg"
+- createdDate: long = System.currentTimeMillis()
++ EditableImage()
++ EditableImage(String filename, String format)
++ EditableImage(ImageProcessor image, String filename, String format)
++ EditableImage(ImageProcessor)
++ deepCopy() : EditableImage
++ getFilename() : String
++ setFilename(String filename) : void
++ getFormat() : String
++ setFormat(String format) : void
++ getCreatedDate() : long
++ getHeight() : int
++ getWidth() : int
++ getProcessor() : ImageProcessor
++ setProcessor(processor: ImageProcessor): void
++ getDisplayImage(): BufferedImage
++ getPixel(x: int, y: int): int
++ setPixel(x: int, y: int, value: int): void
++ applyGrayscale(): void
++ applyInvert(): void
++ applySepia(): void
++ crop(x: int, y: int, width: int, height: int): EditableImage
++ rotate(angle: double): EditableImage
+}
+
+class CommandManager {
+- undoStack: ArrayDeque<ImageCommand>
+- redoStack: ArrayDeque<ImageCommand>
++ CommandManager()
++ executeCommand(command: ImageCommand): void
++ undo(): void
++ redo(): void
++ clearHistory(): void
++ canUndo(): boolean
++ canRedo(): boolean
+}
+interface ImageCommand {
++ execute(): void
++ undo(): void
+}
+
+ImageController -right-> ImageView : renders
+ImageController -left-> ImageModel : accesses/updates
+ImageController --> ImageUtility : loads/saves images
+ImageController --> CommandManager : manages commands
+ImageModel o-left-> EditableImage : contains
+CommandManager -left-> "uses" ImageCommand : executes
+FilterCommand <|-- ImageCommand : implements
+CropCommand <|-- ImageCommand : implements
+RotateCommand <|-- ImageCommand : implements
+@enduml
