@@ -1,3 +1,5 @@
+package com.codeninja2000.pixelbit;
+
 public class ImageModel {
     private EditableImage image;
     private boolean isModified;

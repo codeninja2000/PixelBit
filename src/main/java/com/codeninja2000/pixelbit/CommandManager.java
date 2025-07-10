@@ -1,3 +1,5 @@
+package com.codeninja2000.pixelbit;
+
 import java.util.ArrayDeque;
 
 public class CommandManager {
