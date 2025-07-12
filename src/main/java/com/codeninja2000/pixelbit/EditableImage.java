@@ -1,67 +1,69 @@
 package com.codeninja2000.pixelbit;
 
-import ij.process.ImageProcessor;
+// import ij.process.ImageProcessor;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 public class EditableImage {
 
-    private ImageProcessor image;
-    private String path;
-    private String format;
-    private long createdAt;
-
-    public EditableImage(ImageProcessor image, String path, String format) {
-        this.image = image;
-        this.path = path;
-        this.format = format;
-        this.createdAt = System.currentTimeMillis();
-    }
-
-    public EditableImage(ImageProcessor image, String path) {
-        this.image = image;
-        this.path = path;
-        this.format = "png";
-        this.createdAt = System.currentTimeMillis();
-    }
-
-    public EditableImage(ImageProcessor image) {
-        this.image = image;
-        this.path = null;
-        this.format = "png"; // Default format
-        this.createdAt = System.currentTimeMillis();
-    }
-
-    public EditableImage(File file) {
-        this.image = null; // Placeholder, actual image loading logic should be implemented
-        this.path = file.getAbsolutePath();
-        this.format = "png"; // Default format
-        this.createdAt = System.currentTimeMillis();
-    }
+    private BufferedImage image;
+    private String filename = "default";
+    private String format = "jpg";
+    final private long createdAt = System.currentTimeMillis();
 
     public EditableImage() {
-        this.image = null; // Placeholder, actual image loading logic should be implemented
-        this.path = null;
-        this.format = "png"; // Default format
-        this.createdAt = System.currentTimeMillis();
+        this.image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
     }
+
+    public EditableImage(BufferedImage image, String filename, String format) {
+        this.image = image;
+        this.filename = filename;
+        this.format = format;
+    }
+
+    public EditableImage(BufferedImage image, String filename) {
+        this.image = image;
+        this.filename = filename;
+    }
+
+    public EditableImage(BufferedImage image) {
+        this.image = image;
+    }
+
+    public EditableImage(String path) throws IOException {
+        this(ImageIO.read(new File(path)));
+    }
+
 
     public EditableImage deepCopy() {
-        EditableImage copy = new EditableImage(this.image.duplicate(), this.path, this.format);
-        copy.createdAt = this.createdAt; // Copy the creation time
-        return copy;
+        BufferedImage deepCopy = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        deepCopy.getGraphics().drawImage(image,  0, 0, null);
+        return new EditableImage(deepCopy, filename, format);
     }
 
-    public String getPath() {
-        return this.path;
+    public boolean isEmpty() {
+        if (image == null) {
+            return true;
+        }
+        return image.getWidth() == 1 || image.getHeight() == 1;
     }
 
-    public void setPath(String path) {
+    public String getFilename() {
+        return this.filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public String getFormat() {
         return this.format;
+    }
+    public void setFormat(String format) {
+        this.format = format;
     }
 
     public long getCreatedAt() {
@@ -76,21 +78,20 @@ public class EditableImage {
         return this.image.getWidth();
     }
 
-    public ImageProcessor getProcessor() {
+    public BufferedImage getImage() {
         return this.image;
     }
 
-    public void setProcessor(ImageProcessor processor) {
-        this.image = processor;
+    public void setImage(BufferedImage image) {
+        this.image = image;
     }
 
-    public BufferedImage getDisplayImage() {
+    public int getRGB(int x, int y) {
+        return image.getRGB(x, y);
     }
 
-    public int getPixel(int x, int y) {
-    }
-
-    public void setPixel(int x, int y, int value) {
+    public void setRGB(int x, int y, int value) {
+        image.setRGB(x, y, value);
     }
 
     public void applyGrayScale() {
@@ -108,4 +109,4 @@ public class EditableImage {
     public void applyRotate() {
     }
 }
-}
+

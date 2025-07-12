@@ -1,5 +1,6 @@
 package com.codeninja2000.pixelbit;
 
+import java.awt.Buff
 import java.io.File;
 
 public class ImageUtility {

@@ -3,7 +3,7 @@ package com.codeninja2000.pixelbit;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class HelloController {
+public class PBController {
     @FXML
     private Label welcomeText;
 
