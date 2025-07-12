@@ -1,7 +1,5 @@
 package com.codeninja2000.pixelbit;
 
-// import ij.process.ImageProcessor;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -78,7 +76,7 @@ public class EditableImage {
         return this.image.getWidth();
     }
 
-    public BufferedImage getImage() {
+    public BufferedImage getBufferedImage() {
         return this.image;
     }
 
