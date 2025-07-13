@@ -1,4 +1,4 @@
-package com.codeninja2000.pixelbit;
+package com.pixelbit.model;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -92,19 +92,5 @@ public class EditableImage {
         image.setRGB(x, y, value);
     }
 
-    public void applyGrayScale() {
-    }
-
-    public void applyInvert() {
-    }
-
-    public void applySepia() {
-    }
-
-    public void applyCrop() {
-    }
-
-    public void applyRotate() {
-    }
 }
 

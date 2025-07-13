@@ -1,4 +1,4 @@
-package com.codeninja2000.pixelbit;
+package com.pixelbit;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

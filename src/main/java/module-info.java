@@ -5,6 +5,16 @@ module com.codeninja.pixelbit {
     requires java.desktop;
 
 
-    opens com.codeninja2000.pixelbit to javafx.fxml;
-    exports com.codeninja2000.pixelbit;
+    opens com.pixelbit to javafx.fxml;
+    exports com.pixelbit;
+    exports com.pixelbit.util;
+    opens com.pixelbit.util to javafx.fxml;
+    exports com.pixelbit.command;
+    opens com.pixelbit.command to javafx.fxml;
+    exports com.pixelbit.model;
+    opens com.pixelbit.model to javafx.fxml;
+    exports com.pixelbit.exception;
+    opens com.pixelbit.exception to javafx.fxml;
+    exports com.pixelbit.view;
+    opens com.pixelbit.view to javafx.fxml;
 }

@@ -1,4 +1,4 @@
-package com.codeninja2000.pixelbit;
+package com.pixelbit;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

@@ -1,4 +1,6 @@
-package com.codeninja2000.pixelbit;
+package com.pixelbit.command;
+
+import com.pixelbit.model.EditableImage;
 
 import java.awt.image.BufferedImage;
 

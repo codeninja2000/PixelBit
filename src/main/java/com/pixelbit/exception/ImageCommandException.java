@@ -1,4 +1,4 @@
-package com.codeninja2000.pixelbit;
+package com.pixelbit.exception;
 
 public class ImageCommandException extends Exception {
     public ImageCommandException(String message) {

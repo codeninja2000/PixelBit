@@ -1,4 +1,4 @@
-package com.codeninja2000.pixelbit;
+package com.pixelbit.command;
 
 public interface ImageCommand {
    void execute();

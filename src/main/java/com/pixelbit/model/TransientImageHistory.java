@@ -1,4 +1,4 @@
-package com.codeninja2000.pixelbit;
+package com.pixelbit.model;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;

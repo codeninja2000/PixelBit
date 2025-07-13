@@ -1,10 +1,9 @@
-package com.codeninja2000.pixelbit;
+package com.pixelbit.command;
 
-import javax.imageio.ImageIO;
+import com.pixelbit.model.EditableImage;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 public class BrightnessCommand extends AbstractImageCommand {
     private final float factor;
@@ -23,7 +22,7 @@ public class BrightnessCommand extends AbstractImageCommand {
         applyBrightness(image, this.factor);
     }
 
-private void applyBrightness(BufferedImage image, float factor) throws ImageCommandException {
+private void applyBrightness(BufferedImage image, float factor) {
     for (int y = 0; y < image.getHeight(); y++) {
         for (int x = 0; x < image.getWidth(); x++) {
             Color color = new Color(image.getRGB(x, y));
@@ -34,11 +33,7 @@ private void applyBrightness(BufferedImage image, float factor) throws ImageComm
             image.setRGB(x, y, new Color(r, g, b).getRGB());
         }
     }
-    try {
-        ImageIO.write(image, editableImage.getFormat(), new File("src/main/resources/pinkflower_brightness.jpg"));
-    } catch (IOException e) {
-        throw new ImageCommandException("Error saving image after brightness adjustment: " + e.getMessage());
-    }
+
         }
 
 

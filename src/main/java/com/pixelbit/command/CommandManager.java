@@ -1,4 +1,4 @@
-package com.codeninja2000.pixelbit;
+package com.pixelbit.command;
 
 import java.util.ArrayDeque;
 // TODO: Reference "Exception Handling in Commands" before starting
