@@ -21,6 +21,7 @@ public abstract class AbstractPBCommand implements PBCommand {
     }
 
 
+
     /**
      * Restores image to the previous state.
      */

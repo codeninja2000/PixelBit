@@ -7,7 +7,7 @@ public class ImageProcessor {
     
     /**
      * Applies the given filter to the image.
-     * 
+     *
      * @param image The source image to apply the filter to
      * @param filter The pre-configured filter to apply
      * @return The filtered image
@@ -20,7 +20,7 @@ public class ImageProcessor {
         if (filter == null) {
             throw new IllegalArgumentException("Filter cannot be null");
         }
-        
+
         return filter.apply(image);
     }
 }
