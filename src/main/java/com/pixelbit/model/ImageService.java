@@ -17,6 +17,8 @@ public class ImageService {
         // Validate the image if needed
         // imageValidator.validate(image);
 
+        // Applu business rules
+        // Handle pre/post-processing if needed
         // Apply the filter using the ImageProcessor
         return imageProcessor.applyFIlter(image, type);
     }
