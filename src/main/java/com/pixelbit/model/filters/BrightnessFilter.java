@@ -1,11 +1,21 @@
 package com.pixelbit.model.filters;
 
+import com.pixelbit.model.filter.Filter;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class BrightnessFilter {
-    private double factor;
+/**
+ * BrightnessFilter is a filter that adjusts the brightness of an image.
+ * The factor determines how much to increase or decrease the brightness.
+ * A factor greater than 1.0 increases brightness, while a factor less than 1.0 decreases it.
+ */
+public class BrightnessFilter implements Filter {
+    private double factor = 1.0; // Default factor is 1.0 (no change)
 
+    public BrightnessFilter() {
+        // Default constructor with no factor specified
+    }
     public BrightnessFilter(double factor) {
         this.factor = factor;
     }
@@ -16,7 +26,7 @@ public class BrightnessFilter {
         BufferedImage brightImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                Color color = new Color(brightImage.getRGB(x, y), true); // true = has alpha
+                Color color = new Color(brightImage.getRGB(x, y), true);
                 int r = clamp((int) (color.getRed() * factor));
                 int g = clamp((int) (color.getGreen() * factor));
                 int b = clamp((int) (color.getBlue() * factor));

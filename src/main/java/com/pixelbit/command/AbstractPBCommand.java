@@ -1,6 +1,7 @@
 package com.pixelbit.command;
 
 import com.pixelbit.model.EditableImage;
+import com.pixelbit.model.ImageService;
 
 import java.awt.image.BufferedImage;
 
@@ -10,20 +11,13 @@ import java.awt.image.BufferedImage;
  * and undoing changes.
  */
 public abstract class AbstractPBCommand implements PBCommand {
-    protected EditableImage editableImage;
+    protected final EditableImage editableImage;
     protected BufferedImage previousState;
+    protected final ImageService imageService;
 
-    public AbstractPBCommand(EditableImage editableImage) {
+    protected AbstractPBCommand(EditableImage editableImage, ImageService imageService) {
         this.editableImage = editableImage;
-    }
-
-    /**
-     * Clamps an integer value to the range [0, 255].
-     * @param value the integer value to clamp
-     * @return clamped value within the range [0, 255]
-     */
-    protected static int clamp(int value) {
-        return Math.max(0, Math.min(255, value));
+        this.imageService = imageService;
     }
 
 

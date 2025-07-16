@@ -1,25 +1,30 @@
 package com.pixelbit.model;
 
-import com.pixelbit.model.filter.FilterType;
+import com.pixelbit.model.filter.*;
 import java.awt.image.BufferedImage;
 
 public class ImageService {
     private final ImageProcessor imageProcessor;
-    // private final ImageValidator imageValidator;
+    private final FilterFactory filterFactory;
 
-    public ImageService(ImageProcessor imageProcessor) {
+    public ImageService(ImageProcessor imageProcessor, FilterFactory filterFactory) {
         this.imageProcessor = imageProcessor;
-        // this.imageValidator = imageValidator;
+        this.filterFactory = filterFactory;
     }
-    // TODO: Implement image validation if needed
-    // TODO: Implement parameter passing for filters if needed
-    public BufferedImage applyFilter(BufferedImage image, FilterType type) {
-        // Validate the image if needed
-        // imageValidator.validate(image);
 
-        // Applu business rules
-        // Handle pre/post-processing if needed
-        // Apply the filter using the ImageProcessor
-        return imageProcessor.applyFIlter(image, type);
+    // For pre-configured filters
+    public BufferedImage applyFilter(BufferedImage image, Filter filter) {
+        return imageProcessor.applyFilter(image, filter);
+    }
+
+    // For creating filters with parameters
+    public BufferedImage applyFilter(BufferedImage image, FilterType type, Object... params) {
+        Filter filter = filterFactory.createFilter(type, params);
+        return applyFilter(image, filter);
+    }
+
+    // For simple filters without parameters
+    public BufferedImage applyFilter(BufferedImage image, FilterType type) {
+        return applyFilter(image, type, new Object[0]);
     }
 }
