@@ -26,6 +26,7 @@ public abstract class AbstractPBCommand implements PBCommand {
         return Math.max(0, Math.min(255, value));
     }
 
+
     /**
      * Restores image to the previous state.
      */
