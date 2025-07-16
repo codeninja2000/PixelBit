@@ -12,9 +12,7 @@ public abstract class AbstractPBCommand implements PBCommand {
         this.editableImage = editableImage;
     }
 
-    protected static int clamp(int value) {
-        return Math.max(0, Math.min(255, value));
-    }
+
 
     @Override
     public void undo() {
