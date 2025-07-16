@@ -9,22 +9,16 @@ import java.awt.image.BufferedImage;
 public class BrightnessCommand extends AbstractPBCommand {
     private final float factor;
 
-
     public BrightnessCommand(EditableImage image, float brightnessFactor) {
         super(image);
         this.factor = brightnessFactor;
     }
-
-
 
     @Override
     public void execute() throws CommandExecException {
         try {
             saveCurrentState();
             applyBrightness(editableImage.getBufferedImage(), this.factor);
-        } catch (CommandExecException e) {
-            throw new CommandExecException("Error applying brightness adjustment: " + e.getMessage(), e);
-
         } catch (Exception e) {
             throw new CommandExecException("Error applying brightness adjustment: " + e.getMessage(), e);
         }
@@ -46,8 +40,6 @@ private void applyBrightness(BufferedImage image, float factor) throws CommandEx
             image.setRGB(x, y, new Color(r, g, b, a).getRGB());
         }
     }
-
         }
-
 
 }

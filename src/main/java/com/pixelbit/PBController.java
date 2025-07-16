@@ -3,6 +3,11 @@ package com.pixelbit;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
+/**
+ * PBController is the controller class for the JavaFX application.
+ * It handles user interactions and updates the UI accordingly.
+ * It also acts as a bridge between the view and the model.
+ */
 public class PBController {
     @FXML
     private Label welcomeText;
@@ -11,11 +16,4 @@ public class PBController {
     protected void onHelloButtonClick() {
         welcomeText.setText("Welcome to JavaFX Application!");
     }
-
-//    public void saveImage(EditableImage image) {
-//        BufferedImage toSave = image.getCurrentImage();
-//        ImageIO.write(toSave, "png", new File("output.png"));
-//        image.resetModifiedFlag(); // ← mark as not dirty after save
-//    }
-
 }

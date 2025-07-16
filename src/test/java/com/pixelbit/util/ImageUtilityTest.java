@@ -1,8 +1,7 @@
 package com.pixelbit.util;
 
-import org.junit.jupiter.api.Test;
-
 import com.pixelbit.model.EditableImage;
+import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -12,6 +11,40 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ImageUtilityTest {
+
+    @Test
+    void testSaveToFileWithValidPath() throws IOException {
+        // Create a sample image and output file path.
+        EditableImage sampleImage = new EditableImage(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB));
+        File outputFile = new File("src/test/resources/output_image.jpg");
+
+        // Test saving the image to a valid path.
+        ImageUtility.saveToFile(sampleImage, outputFile.getAbsolutePath());
+        assertTrue(outputFile.exists(), "The output image file should exist.");
+    }
+
+
+
+    @Test
+    void testSaveToFileWithoutExtension() throws IOException {
+        // Create a sample image and set a file path without an extension.
+        EditableImage sampleImage = new EditableImage(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB));
+        File fileWithoutExtension = new File("src/test/resources/output_image_no_extension");
+
+        // Test saving and check that the default format is used.
+        ImageUtility.saveToFile(sampleImage, fileWithoutExtension.getAbsolutePath());
+        assertTrue(fileWithoutExtension.exists(), "The output file should be saved with the default format.");
+    }
+
+    @Test
+    void testSaveToFileWithInvalidPath() {
+        EditableImage sampleImage = new EditableImage(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB));
+        // Use an invalid character in the filename (on Windows)
+        String invalidPath = "C:/test_no_permission.jpg";
+        
+        IOException exception = assertThrows(IOException.class, () -> ImageUtility.saveToFile(sampleImage, invalidPath));
+        assertTrue(exception.getMessage().contains("Failed to save image"), "The error message must indicate failure due to invalid path.");
+    }
 
 
     /**
@@ -113,6 +146,7 @@ class ImageUtilityTest {
         // Test loading from a non-existent file path.
         String invalidPath = "src/test/resources/non_existent_file.jpg";
         IOException exception = assertThrows(IOException.class, () -> ImageUtility.loadFromFile(invalidPath));
+
         assertTrue(exception.getMessage().contains("Image file could not be loaded"), "The error message must indicate loading failure.");
     }
 
