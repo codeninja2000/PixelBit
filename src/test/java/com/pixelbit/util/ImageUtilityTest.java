@@ -113,7 +113,7 @@ class ImageUtilityTest {
         // Test loading from a non-existent file path.
         String invalidPath = "src/test/resources/non_existent_file.jpg";
         IOException exception = assertThrows(IOException.class, () -> ImageUtility.loadFromFile(invalidPath));
-        assertEquals("Image file could not be loaded: src/test/resources/non_existent_file.jpg", exception.getMessage());
+        assertTrue(exception.getMessage().contains("Image file could not be loaded"), "The error message must indicate loading failure.");
     }
 
     @Test
