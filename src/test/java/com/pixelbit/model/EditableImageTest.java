@@ -10,6 +10,11 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the EditableImage class, specifically testing the deepCopy method.
+ * These tests ensure that the deepCopy method creates an independent copy of the EditableImage,
+ * preserving its properties and allowing modifications without affecting the original image.
+ */
 class EditableImageTest {
 
     /**

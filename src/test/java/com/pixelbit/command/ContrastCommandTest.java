@@ -8,7 +8,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit tests for the ContrastCommand class.
+ * These tests cover various scenarios including valid and invalid contrast factors.
+ */
 class ContrastCommandTest {
 
     @Test
