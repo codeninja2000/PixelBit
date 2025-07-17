@@ -39,6 +39,11 @@ public class ContrastFilter implements Filter {
 
     @Override
     public String getName() {
-        return "Contrast Filter";
+        return "Contrast";
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%sFilter[factor=%s]", this.getName(), this.factor);
     }
 }

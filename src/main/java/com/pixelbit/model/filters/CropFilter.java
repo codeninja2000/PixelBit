@@ -130,7 +130,7 @@ public class CropFilter implements Filter {
      */
     public String toString() {
         return String.format("%sFilter[x=%d, y=%d, width=%d, height=%d]",
-                getName(), x, y, width, height);
+                this.getName(), x, y, width, height);
     }
 
 }

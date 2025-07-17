@@ -8,6 +8,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * SepiaFilter applies a sepia tone effect to an image.
+ * The sepia effect is achieved by applying a specific transformation to the RGB values of each pixel.
+ */
 public class SepiaFilter implements Filter {
 
     public static void main(String[] args) {
@@ -78,6 +82,10 @@ public class SepiaFilter implements Filter {
         return "Sepia";
     }
 
+    @Override
+    public String toString() {
+        return String.format("%sFilter", this.getName());
+    }
 
 
 }
