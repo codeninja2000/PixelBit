@@ -1,7 +1,10 @@
 package com.pixelbit.model.filter;
 
 import com.pixelbit.exception.InvalidFilterParamsException;
-import com.pixelbit.model.filters.*;
+import com.pixelbit.model.filters.BrightnessFilter;
+import com.pixelbit.model.filters.ContrastFilter;
+import com.pixelbit.model.filters.GrayscaleFilter;
+import com.pixelbit.model.filters.SepiaFilter;
 
 
 /**
@@ -20,13 +23,14 @@ public class FilterFactory {
      * @return An instance of the specified filter type.
      * @throws InvalidFilterParamsException if the provided parameters are invalid for the specified filter type.
      */
-   public Filter createFilter(FilterType type, Object... params) {
-       return switch (type) {
-           case GRAYSCALE -> new GrayscaleFilter();
-           case CONTRAST -> createContrastFilter(params);
-           case BRIGHTNESS -> createBrightnessFilter(params);
-       };
-   }
+    public Filter createFilter(FilterType type, Object... params) {
+        return switch (type) {
+            case GRAYSCALE -> new GrayscaleFilter();
+            case CONTRAST -> createContrastFilter(params);
+            case BRIGHTNESS -> createBrightnessFilter(params);
+            case SEPIA -> new SepiaFilter();
+        };
+    }
 
     /**
      * Creates a BrightnessFilter with the specified parameters.
@@ -35,13 +39,13 @@ public class FilterFactory {
      * @return An instance of BrightnessFilter.
      */
     private Filter createBrightnessFilter(Object[] params) {
-       if (params.length == 0) {
-           return new BrightnessFilter();
-       }
-       if (params.length == 1 && params[0] instanceof Integer) {
-           return new BrightnessFilter((Integer) params[0]);
-       }
-         throw new InvalidFilterParamsException("Invalid parameters for BrightnessFilter");
+        if (params.length == 0) {
+            return new BrightnessFilter();
+        }
+        if (params.length == 1 && params[0] instanceof Integer) {
+            return new BrightnessFilter((Integer) params[0]);
+        }
+        throw new InvalidFilterParamsException("Invalid parameters for BrightnessFilter");
     }
 
     /**
