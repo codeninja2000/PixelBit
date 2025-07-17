@@ -51,8 +51,3 @@ public class ApplyFilterCommand extends AbstractPBCommand implements ImageUpdate
         return editableImage;
     }
 }
-//
-//        // Usage example:
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("factor", 1.5); // for contrast filter
-//        var command = new ApplyFilterCommand(imageService, editableImage, FilterType.CONTRAST, params);
