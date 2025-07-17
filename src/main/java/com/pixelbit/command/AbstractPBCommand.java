@@ -1,5 +1,6 @@
 package com.pixelbit.command;
 
+import com.pixelbit.exception.CommandExecException;
 import com.pixelbit.model.EditableImage;
 import com.pixelbit.model.ImageService;
 
@@ -20,6 +21,15 @@ public abstract class AbstractPBCommand implements PBCommand {
         this.imageService = imageService;
     }
 
+
+    /**
+     * Abstract method that concrete commands must implement.
+     * Defines how the command will be executed.
+     *
+     * @throws CommandExecException if an error occurs during command execution
+     */
+    @Override
+    public abstract void execute() throws CommandExecException;
 
 
     /**

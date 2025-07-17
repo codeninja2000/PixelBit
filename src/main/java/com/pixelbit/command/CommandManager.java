@@ -5,6 +5,7 @@ import com.pixelbit.view.UIErrorNotifier;
 
 import java.util.ArrayDeque;
 
+// TODO: Redo exception handling so that a CommandExecException is thrown and handled further up the stack (like in the controller).
 
 /**
  * CommandManager is responsible for managing the execution, undo, and redo of commands.
@@ -80,8 +81,8 @@ public class CommandManager {
      */
     public void undo() {
         if (canUndo()) {
-            PBCommand command = undoStack.pop();
             try {
+            PBCommand command = undoStack.pop();
                 command.undo();
                 redoStack.push(command);
             } catch (Exception e) {
@@ -100,8 +101,8 @@ public class CommandManager {
      */
     public void redo() {
         if (canRedo()) {
-            PBCommand command = redoStack.pop();
             try {
+            PBCommand command = redoStack.pop();
                 command.execute();
                 undoStack.push(command);
             } catch (Exception e) {

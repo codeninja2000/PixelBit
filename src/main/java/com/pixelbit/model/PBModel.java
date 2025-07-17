@@ -1,5 +1,7 @@
 // src/main/java/com/pixelbit/model/PBModel.java
 package com.pixelbit.model;
+import com.pixelbit.command.ApplyFilterCommand;
+import com.pixelbit.command.ImageUpdateCommand;
 import com.pixelbit.util.ImageUtility;
 import com.pixelbit.command.CommandManager;
 
@@ -129,10 +131,25 @@ public class PBModel {
      * Applies a command to the image, executing it and marking the model as modified.
      * @param command the command to apply
      */
+//    public void applyEdit(PBCommand command) {
+//        commandManager.executeCommand(command);
+//        if (command instanceof ApplyFilterCommand) {
+//            this.image = ((ApplyFilterCommand) command).getResult();
+//        }
+//        isModified = true;
+//    }
     public void applyEdit(PBCommand command) {
         commandManager.executeCommand(command);
+        updateImageIfNeeded(command);
         isModified = true;
     }
+
+    private void updateImageIfNeeded(PBCommand command) {
+        if (command instanceof ImageUpdateCommand imageCommand) {
+            this.image = imageCommand.getUpdatedImage();
+        }
+    }
+
 
     /**
      * Undoes the last command applied to the image.
