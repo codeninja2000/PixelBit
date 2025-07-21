@@ -1,6 +1,8 @@
 package com.pixelbit.model;
 
 
+import javafx.scene.image.Image;
+import javafx.embed.swing.SwingFXUtils;
 import java.awt.image.BufferedImage;
 
 
@@ -145,6 +147,16 @@ public class EditableImage {
      */
     public BufferedImage getBufferedImage() {
         return this.image;
+    }
+
+    public Image toJavaFXImage() {
+        // Convert BufferedImage to JavaFX Image
+        if (this.image == null) {
+            return null; // Handle the case where the image is null
+        }
+        // Use SwingFXUtils to convert BufferedImage to JavaFX Image
+
+        return SwingFXUtils.toFXImage(this.image, null);
     }
 
     /**

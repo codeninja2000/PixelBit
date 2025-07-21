@@ -3,6 +3,7 @@ module com.codeninja.pixelbit {
     requires javafx.fxml;
     requires ij;
     requires java.desktop;
+    requires javafx.swing;
 
 
     opens com.pixelbit to javafx.fxml;
