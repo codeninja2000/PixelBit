@@ -15,6 +15,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * PBController is the controller class for the JavaFX application.
@@ -36,8 +38,38 @@ public class PBController {
 
     public void onApplyFilter(FilterType filterType, Object... params) {
         try {
-            Filter filter = filterFactory.createFilter(filterType, params);
-            ApplyFilterCommand command = new ApplyFilterCommand(imageService, model.getImage(), filter);
+            if (model.getImage() == null) {
+                view.showError("No image loaded");
+                return;
+            }
+
+            Map<String, Object> parameters = new HashMap<>();
+        
+            // Map parameters based on filter type
+            switch (filterType) {
+                case BRIGHTNESS -> {
+                    if (params.length > 0) {
+                        parameters.put("brightness", params[0]);
+                    }
+                }
+                case CONTRAST -> {
+                    if (params.length > 0) {
+                        parameters.put("contrast", params[0]);
+                    }
+                }
+                case SEPIA, GRAYSCALE -> {
+                    // These filters don't need parameters
+                }
+            }
+
+            ApplyFilterCommand command = new ApplyFilterCommand(
+                imageService,
+                filterFactory,
+                model.getImage(),
+                filterType,
+                parameters
+            );
+
             model.applyEdit(command);
             view.updateImage(model.getImage());
             updateUndoRedoButtons();
