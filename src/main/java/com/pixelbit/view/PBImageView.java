@@ -13,7 +13,10 @@ import javafx.scene.layout.VBox;
  * PBImageView will contain GUI logic for displaying images.
  */
 public class PBImageView extends BorderPane {
-    private final ImageView imageView = new ImageView();
+   
+    // Add a new VBox for the main image view
+    private final VBox mainImagePane = new VBox();
+    private final ImageView mainImageView = new ImageView(); // ImageView to display the main image
     private final Label errorLabel = new Label();
 
     // Menu items
@@ -29,24 +32,35 @@ public class PBImageView extends BorderPane {
     // Adjustment controls
     private final Slider brightnessSlider = new Slider(-1, 1, 0);
     private final Slider contrastSlider = new Slider(-1, 1, 0);
-
+    
+    
+    
+    // Path to the default image (in your project's resources folder)
+    private final Image defaultImage = new Image(getClass().getResource("/images/placeholder.png").toString());
 
     public PBImageView() {
-
+        System.out.println(getClass().getResource("/images/placeholder.png"));
         errorLabel.setVisible(false);
+        
 
-        // Configure ImageView
-        imageView.setPreserveRatio(true);
-        imageView.setFitWidth(800);
-        imageView.setFitHeight(600);
+        // Configure ImageView for the main image pane
+        mainImageView.setPreserveRatio(true);
+        mainImageView.setFitWidth(800);  // Default width
+        mainImageView.setFitHeight(600); // Default height
 
-        // Create MenuBar
+        // Style the mainImagePane
+        mainImagePane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+        mainImagePane.setVisible(false); // Initially hidden
+        mainImagePane.setManaged(false); // Allows hiding without affecting layout flow
+        mainImagePane.getChildren().add(mainImageView);
+        mainImagePane.setId("mainImagePane");
+
+        // Add the mainImagePane to the layout (e.g., center of the BorderPane)
+        setCenter(mainImagePane);
+
+        // Create and set up existing UI components
         MenuBar menuBar = createMenuBar();
-
-        // Create ToolBar for filters
         ToolBar filterToolbar = createFilterToolbar();
-
-        // Create adjustment panel
         VBox adjustmentPanel = createAdjustmentPanel();
 
         // Set up the layout
@@ -54,7 +68,6 @@ public class PBImageView extends BorderPane {
         topContainer.getChildren().addAll(menuBar, filterToolbar);
 
         setTop(topContainer);
-        setCenter(imageView);
         setRight(adjustmentPanel);
         setBottom(errorLabel);
         setStyle("-fx-padding: 10;");
@@ -121,13 +134,17 @@ public class PBImageView extends BorderPane {
      * @param editableImage the EditableImage to display
      */
     public void updateImage(EditableImage editableImage) {
-        if (editableImage != null && editableImage.getBufferedImage() != null) {
-            // Convert EditableImage to JavaFX Image
-            Image javafxImage = editableImage.toJavaFXImage();
-            imageView.setImage(javafxImage);
+        //System.out.println("EditableImage empty? " + editableImage.isEmpty());
+        if (editableImage == null || editableImage.isEmpty()) {
+            // Handle the case where there's no image to display
+            mainImageView.setImage(defaultImage);
+            mainImagePane.setVisible(true); // Hide the pane when no image is available
+            mainImagePane.setManaged(true);
         } else {
-            imageView.setImage(null);
-            showError("No image to display.");
+            // Convert EditableImage to a JavaFX Image and display it
+            mainImageView.setImage(editableImage.toJavaFXImage());
+            mainImagePane.setVisible(true);
+            mainImagePane.setManaged(true);
         }
     }
 
@@ -149,6 +166,18 @@ public class PBImageView extends BorderPane {
         redoMenuItem.setDisable(!enabled);
     }
 
+    // Method to show the main image pane with a given image
+    public void showMainImagePane(Image image) {
+        mainImageView.setImage(image); // Set image in ImageView
+        mainImagePane.setVisible(true);
+        mainImagePane.setManaged(true); // Ensure the pane occupies layout space
+    }
+
+    // Method to hide the main image pane
+    public void hideMainImagePane() {
+        mainImagePane.setVisible(false);
+        mainImagePane.setManaged(false);
+    }
 
 
 }

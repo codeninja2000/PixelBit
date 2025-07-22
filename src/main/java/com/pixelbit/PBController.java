@@ -34,6 +34,9 @@ public class PBController {
         this.view = view;
         this.imageService = imageService;
         this.filterFactory = filterFactory;
+
+        view.updateImage(null);
+        updateUndoRedoButtons();
     }
 
     public void onApplyFilter(FilterType filterType, Object... params) {

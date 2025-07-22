@@ -1,0 +1,7 @@
+#mainImagePane {
+    -fx-background-color: lightgray; /* Background for the pane */
+    -fx-border-color: darkgray; /* Border color */
+    -fx-border-width: 2; /* Border thickness */
+    -fx-padding: 10; /* Padding inside the pane */
+    -fx-alignment: center; /* Centering content */
+}
