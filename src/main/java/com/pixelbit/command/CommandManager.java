@@ -1,9 +1,14 @@
 package com.pixelbit.command;
 
 import com.pixelbit.exception.CommandExecException;
+import com.pixelbit.model.EditableImage;
+import com.pixelbit.model.ImageService;
+import com.pixelbit.model.filter.FilterFactory;
+import com.pixelbit.model.filter.FilterType;
 import com.pixelbit.view.UIErrorNotifier;
 
 import java.util.ArrayDeque;
+import java.util.Map;
 
 // TODO: Redo exception handling so that a CommandExecException is thrown and handled further up the stack (like in the controller).
 
@@ -17,24 +22,30 @@ public class CommandManager {
 
     private final ArrayDeque<PBCommand> undoStack = new ArrayDeque<>();
     private final ArrayDeque<PBCommand> redoStack = new ArrayDeque<>();
-    private UIErrorNotifier ui; /**
+    private final ImageService imageService;
+    private final FilterFactory filterFactory;
+private UIErrorNotifier ui;
+/**
      * Optional UI notifier to display error messages.
      * If null, errors will not be displayed in the UI.
      */
 
 
-    public CommandManager() {
-        this.ui = null; // Default constructor without UI notifier
+    public CommandManager(ImageService imageService, FilterFactory filterFactory) {
+        this(imageService, filterFactory, null);
+
+    }
+        public CommandManager(ImageService imageService, FilterFactory filterFactory, UIErrorNotifier ui) {
+        this.imageService = imageService;
+        this.filterFactory = filterFactory;
+        this.ui = ui;
+    }
+    public ImageService getImageService() {
+        return imageService;
     }
 
-    /**
-     * Constructor that allows passing a UIErrorNotifier to display errors.
-     *
-     * @param ui UIErrorNotifier instance to handle error notifications.
-     */
-    public CommandManager(UIErrorNotifier ui) {
-        this.ui = ui;
-
+    public FilterFactory getFilterFactory() {
+        return filterFactory;
     }
 
     /**
@@ -73,6 +84,11 @@ public class CommandManager {
                 ui.showError("Error executing command: " + e.getMessage());
             }
         }
+    }
+
+    public void executeApplyFilterCommand(EditableImage image, FilterType filterType, Map<String, Object> params) {
+        ApplyFilterCommand command = new ApplyFilterCommand(imageService, filterFactory, image, filterType, params);
+        executeCommand(command);
     }
 
     /**
@@ -136,3 +152,5 @@ public class CommandManager {
         return !redoStack.isEmpty();
     }
 }
+
+

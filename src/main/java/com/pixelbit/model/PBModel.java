@@ -2,6 +2,7 @@
 package com.pixelbit.model;
 import com.pixelbit.command.ApplyFilterCommand;
 import com.pixelbit.command.ImageUpdateCommand;
+import com.pixelbit.model.filter.FilterFactory;
 import com.pixelbit.util.ImageUtility;
 import com.pixelbit.command.CommandManager;
 
@@ -17,16 +18,20 @@ import java.io.IOException;
  * It provides methods to load, save, and apply edits to the image.
  */
 public class PBModel {
+    // CommandManager handles the command history for undo/redo functionality
+    private final CommandManager commandManager;
     // EditableImage is a wrapper around BufferedImage that allows for editing operations
     private EditableImage image ;
-    // CommandManager handles the command history for undo/redo functionality
-    private final CommandManager commandManager = new CommandManager();
     // isModified is set to true when an edit is applied
     // and reset to false when the image is loaded, replaced, or saved.
     private boolean isModified = false;
-
     public PBModel() {
+
         this.image = new EditableImage(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB));
+        ImageProcessor imageProcessor = new ImageProcessor();
+        FilterFactory filterFactory = new FilterFactory();
+        ImageService imageService = new ImageService(imageProcessor, filterFactory);
+        this.commandManager = new CommandManager(imageService, filterFactory);
     }
 
     /**
@@ -35,15 +40,22 @@ public class PBModel {
      * @throws IOException if the image cannot be loaded
      */
     public PBModel(String path) throws IOException {
+        this();
         load(path);
     }
+
 /**
      * Constructs a PBModel with an image loaded from the specified file.
      * @param file the file to load the image from
      * @throws IOException if the image cannot be loaded
      */
     public PBModel(File file) throws IOException {
+        this();
         load(file);
+    }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
     }
 
     /**
@@ -181,5 +193,12 @@ public class PBModel {
      */
     public boolean canRedo() {
         return commandManager.canRedo();
+    }
+    public ImageService getImageService() {
+        return this.commandManager.getImageService();
+    }
+
+    public FilterFactory getFilterFactory() {
+        return this.commandManager.getFilterFactory();
     }
 }

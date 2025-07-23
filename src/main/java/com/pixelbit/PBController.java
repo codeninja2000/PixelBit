@@ -1,23 +1,17 @@
 package com.pixelbit;
 
 import com.pixelbit.command.ApplyFilterCommand;
-import com.pixelbit.command.CommandManager;
-import com.pixelbit.exception.CommandExecException;
-import com.pixelbit.model.EditableImage;
-import com.pixelbit.model.ImageService;
 import com.pixelbit.model.PBModel;
-import com.pixelbit.model.filter.Filter;
-import com.pixelbit.model.filter.FilterFactory;
 import com.pixelbit.model.filter.FilterType;
-import com.pixelbit.util.ImageUtility;
 import com.pixelbit.view.PBImageView;
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javafx.application.Platform;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
+import java.io.File;
 /**
  * PBController is the controller class for the JavaFX application.
  * It handles user interactions and updates the UI accordingly.
@@ -26,17 +20,17 @@ import java.util.Map;
 public class PBController {
     private final PBModel model;
     private final PBImageView view;
-    private final ImageService imageService;
-    private final FilterFactory filterFactory;
 
-    public PBController(PBModel model, PBImageView view, ImageService imageService, FilterFactory filterFactory) {
+    public PBController(PBModel model, PBImageView view) {
         this.model = model;
         this.view = view;
-        this.imageService = imageService;
-        this.filterFactory = filterFactory;
 
         view.updateImage(null);
-        updateUndoRedoButtons();
+        updateUndoRedoButtons(); // Ensure buttons are updated initially
+        view.getOpenItem().setOnAction(event -> handleOpenImage(view.getScene().getWindow()));
+        System.out.println("Exit item: " + view.getExitItem());
+        view.getExitItem().setOnAction(event -> {System.out.println("Exit item clicked"); handleExit();});
+
     }
 
     public void onApplyFilter(FilterType filterType, Object... params) {
@@ -46,9 +40,8 @@ public class PBController {
                 return;
             }
 
+            // Map filter parameters
             Map<String, Object> parameters = new HashMap<>();
-        
-            // Map parameters based on filter type
             switch (filterType) {
                 case BRIGHTNESS -> {
                     if (params.length > 0) {
@@ -61,58 +54,59 @@ public class PBController {
                     }
                 }
                 case SEPIA, GRAYSCALE -> {
-                    // These filters don't need parameters
+                    // No additional parameters needed
                 }
             }
 
-            ApplyFilterCommand command = new ApplyFilterCommand(
-                imageService,
-                filterFactory,
-                model.getImage(),
-                filterType,
-                parameters
-            );
+            // Delegate command execution to the model
+            model.applyEdit(new ApplyFilterCommand(
+                    model.getImageService(),
+                    model.getFilterFactory(),
+                    model.getImage(),
+                    filterType,
+                    parameters
+            ));
 
-            model.applyEdit(command);
-            view.updateImage(model.getImage());
+            view.updateImage(model.getImage()); // Update view with new image
             updateUndoRedoButtons();
         } catch (Exception e) {
             view.showError("Failed to apply filter: " + e.getMessage());
         }
     }
 
-    public void onUndo() {
-        if (model.canUndo()) {
-            model.undo();
-            view.updateImage(model.getImage());
-            updateUndoRedoButtons();
-        }
+    private void handleExit() {
+        Platform.exit(); // Terminates the JavaFX application
     }
 
-    public void onRedo() {
-        if (model.canRedo()) {
-            model.redo();
-            view.updateImage(model.getImage());
-            updateUndoRedoButtons();
-        }
+    public void handleOpenImage(Window parentWindow) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Image");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+
+       File selectedFile = fileChooser.showOpenDialog(parentWindow);
+
+       if (selectedFile != null) {
+           try {
+               model.loadImage(selectedFile);
+                view.updateImage(model.getImage());
+           } catch (Exception e) {
+               view.showError("Failed to open image: " + e.getMessage());
+           }
+       }
     }
 
-    public void onLoadImage(String filepath) {
-        try {
-            model.loadImage(filepath);
-            view.updateImage(model.getImage());
-            updateUndoRedoButtons();
-        } catch (IOException e) {
-            view.showError("Failed to load image: " + e.getMessage());
-        }
+    public void handleUndo() {
+        model.undo();
+        view.updateImage(model.getImage());
+        updateUndoRedoButtons();
     }
 
-    public void onSaveImage(String filepath) {
-        try {
-            model.saveImage(filepath);
-        } catch (IOException e) {
-            view.showError("Failed to save image: " + e.getMessage());
-        }
+    public void handleRedo() {
+        model.redo();
+        view.updateImage(model.getImage());
+        updateUndoRedoButtons();
     }
 
     private void updateUndoRedoButtons() {

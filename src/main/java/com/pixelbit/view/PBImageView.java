@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 
@@ -15,43 +16,44 @@ import javafx.scene.layout.VBox;
 public class PBImageView extends BorderPane {
    
     // Add a new VBox for the main image view
-    private final VBox mainImagePane = new VBox();
+    //private final VBox mainImagePane = new VBox();
+    private final StackPane mainImagePane = new StackPane(); // StackPane to hold the main image view
     private final ImageView mainImageView = new ImageView(); // ImageView to display the main image
     private final Label errorLabel = new Label();
 
     // Menu items
+    private final MenuItem openItem = new MenuItem("Open");
+    private final MenuItem exitItem = new MenuItem("Exit");
     private final MenuItem undoMenuItem = new MenuItem("Undo");
     private final MenuItem redoMenuItem = new MenuItem("Redo");
     private final MenuItem saveMenuItem = new MenuItem("Save");
-
     // Filter toolbar buttons
     private final Button grayscaleButton = new Button("Grayscale");
     private final Button invertButton = new Button("Invert");
     private final Button sepiaButton = new Button("Sepia");
-
     // Adjustment controls
     private final Slider brightnessSlider = new Slider(-1, 1, 0);
     private final Slider contrastSlider = new Slider(-1, 1, 0);
-    
-    
-    
     // Path to the default image (in your project's resources folder)
-    private final Image defaultImage = new Image(getClass().getResource("/images/placeholder.png").toString());
-
+    private final Image defaultImage = new Image(getClass().getResource("/images/dark-checkered-bg.jpg").toString());
     public PBImageView() {
         System.out.println(getClass().getResource("/images/placeholder.png"));
         errorLabel.setVisible(false);
-        
+
+        // Initialize with the default image
+        mainImageView.setImage(defaultImage);
+//        mainImagePane.setVisible(true);
+//        mainImagePane.setManaged(true);
+
 
         // Configure ImageView for the main image pane
-        mainImageView.setPreserveRatio(true);
+//        mainImageView.setPreserveRatio(true);
         mainImageView.setFitWidth(800);  // Default width
         mainImageView.setFitHeight(600); // Default height
 
         // Style the mainImagePane
         mainImagePane.setStyle("-fx-background-color: white; -fx-padding: 10;");
-        mainImagePane.setVisible(false); // Initially hidden
-        mainImagePane.setManaged(false); // Allows hiding without affecting layout flow
+
         mainImagePane.getChildren().add(mainImageView);
         mainImagePane.setId("mainImagePane");
 
@@ -73,14 +75,21 @@ public class PBImageView extends BorderPane {
         setStyle("-fx-padding: 10;");
 
     }
+    
+    public MenuItem getExitItem() {
+        return exitItem;
+    }
+
+    public MenuItem getOpenItem() {
+        return openItem;
+    }
 
     private MenuBar createMenuBar() {
         MenuBar menuBar = new MenuBar();
 
         // File menu
         Menu fileMenu = new Menu("File");
-        MenuItem openItem = new MenuItem("Open");
-        MenuItem exitItem = new MenuItem("Exit");
+
         fileMenu.getItems().addAll(openItem, saveMenuItem, exitItem);
 
 
@@ -138,14 +147,20 @@ public class PBImageView extends BorderPane {
         if (editableImage == null || editableImage.isEmpty()) {
             // Handle the case where there's no image to display
             mainImageView.setImage(defaultImage);
-            mainImagePane.setVisible(true); // Hide the pane when no image is available
-            mainImagePane.setManaged(true);
+
         } else {
             // Convert EditableImage to a JavaFX Image and display it
             mainImageView.setImage(editableImage.toJavaFXImage());
-            mainImagePane.setVisible(true);
-            mainImagePane.setManaged(true);
+
         }
+
+        mainImageView.setPreserveRatio(true); // Ensure the aspect ratio is preserved
+        mainImageView.setFitWidth(800);       // Fixed width
+        mainImageView.setFitHeight(600);      // Fixed height
+
+        mainImagePane.setVisible(true);
+        mainImagePane.setManaged(true);
+
     }
 
     public void showError(String message) {
