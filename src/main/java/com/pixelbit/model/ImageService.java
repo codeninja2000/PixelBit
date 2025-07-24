@@ -17,6 +17,7 @@ public class ImageService {
         return imageProcessor.applyFilter(image, filter);
     }
 
+
     // For creating filters with parameters
     public BufferedImage applyFilter(BufferedImage image, FilterType type, Object... params) {
         Filter filter = filterFactory.createFilter(type, params);

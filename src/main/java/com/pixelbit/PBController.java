@@ -43,23 +43,20 @@ public class PBController {
                     return;
                 }
 
-                // Apply the Grayscale filter using the appropriate command
-                model.applyEdit(new ApplyFilterCommand(
-                        model.getImageService(),
-                        model.getFilterFactory(),
-                        model.getImage(),
-                        FilterType.GRAYSCALE,
-                        null // No additional parameters needed for Grayscale
-                ));
+        model.applyEdit(new ApplyFilterCommand(
+                model.getImage(),
+                model.getFilterFactory(),
+                FilterType.GRAYSCALE,
+                null  // Grayscale doesn't need parameters
+        ));
 
-                // Update the view with the new image and refresh undo/redo button states
-                view.updateImage(model.getImage());
-                updateUndoRedoButtons();
+        view.updateImage(model.getImage());
+        updateUndoRedoButtons();
 
-            } catch (Exception e) {
-                view.showError("Failed to apply Grayscale filter: " + e.getMessage());
-            }
-        });
+    } catch (Exception e) {
+        view.showError("Failed to apply Grayscale filter: " + e.getMessage());
+    }
+});
     }
 
     public void onApplyFilter(FilterType filterType, Object... params) {

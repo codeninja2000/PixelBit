@@ -14,32 +14,22 @@ import java.util.Map;
 // This class will replace all the indi
 public class ApplyFilterCommand extends AbstractPBCommand implements ImageUpdateCommand {
     private final Filter filter;
-    private final Map<String, Object> parameters;
-    private final FilterFactory filterFactory;  // Add this field
 
-    public ApplyFilterCommand(ImageService imageService, FilterFactory filterFactory, EditableImage editableImage,
-                              FilterType filterType, Map<String, Object> parameters) {
-        super(editableImage, imageService);
-        this.filterFactory = filterFactory;
-        if (parameters == null) {
-            this.parameters = new HashMap<>(); // Initialize to an empty map if null
-        } else {
-            this.parameters = new HashMap<>(parameters); // Create a copy to avoid external modifications
-        }
-        this.filter = createFilter(filterType, parameters);
-    }
-
-    private Filter createFilter(FilterType filterType, Map<String, Object> parameters) {
-        if (filterType == null) {
-            throw new IllegalArgumentException("FilterType cannot be null");
-        }
-
-        if (parameters == null) {
-            parameters = new HashMap<>();
+    public ApplyFilterCommand(EditableImage editableImage, FilterFactory filterFactory, 
+                            FilterType filterType, Map<String, Object> parameters) {
+        super(editableImage);
+        
+        // Simplify parameter handling
+        Object[] params = null;
+        if (parameters != null && !parameters.isEmpty()) {
+            switch (filterType) {
+                case BRIGHTNESS -> params = new Object[]{parameters.get("brightness")};
+                case CONTRAST -> params = new Object[]{parameters.get("contrast")};
+                case SEPIA, GRAYSCALE -> params = new Object[0];
+            }
         }
         
-        Object[] paramValues = parameters.values().toArray();
-        return filterFactory.createFilter(filterType, paramValues);
+        this.filter = filterFactory.createFilter(filterType, params);
     }
 
     @Override
