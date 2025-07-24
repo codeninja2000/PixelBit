@@ -23,16 +23,18 @@ public class GrayscaleFilter implements Filter {
         BufferedImage grayImage = new BufferedImage(width, image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = grayImage.getRGB(x, y);
-                Color color = new Color(pixel, true); // true = has alpha
-                // Convert to grayscale using the luminosity method
-                int gray = (int)(RED_COEFFICIENT * color.getRed() +
-                        GREEN_COEFFICIENT * color.getGreen() +
-                        BLUE_COEFFICIENT * color.getBlue());
-                int a = color.getAlpha(); // preserve original alpha
-                grayImage.setRGB(x, y, new Color(gray, gray, gray, a).getRGB());
-            }
-        }
+        int pixel = image.getRGB(x, y); // PROBLEM: This should be image.getRGB(x, y)
+        Color color = new Color(pixel, true); // true = has alpha
+
+        // Convert to grayscale using the luminosity method
+        int gray = (int) (RED_COEFFICIENT * color.getRed() +
+                          GREEN_COEFFICIENT * color.getGreen() +
+                          BLUE_COEFFICIENT * color.getBlue());
+        int a = color.getAlpha(); // Preserve original alpha
+
+        grayImage.setRGB(x, y, new Color(gray, gray, gray, a).getRGB());
+    }
+}
         return grayImage;
     }
 

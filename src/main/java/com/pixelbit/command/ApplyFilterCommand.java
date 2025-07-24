@@ -20,7 +20,11 @@ public class ApplyFilterCommand extends AbstractPBCommand implements ImageUpdate
                               FilterType filterType, Map<String, Object> parameters) {
         super(editableImage, imageService);
         this.filterFactory = filterFactory;
-        this.parameters = parameters;
+        if (parameters == null) {
+            this.parameters = new HashMap<>(); // Initialize to an empty map if null
+        } else {
+            this.parameters = new HashMap<>(parameters); // Create a copy to avoid external modifications
+        }
         this.filter = createFilter(filterType, parameters);
     }
 
@@ -28,8 +32,9 @@ public class ApplyFilterCommand extends AbstractPBCommand implements ImageUpdate
         if (filterType == null) {
             throw new IllegalArgumentException("FilterType cannot be null");
         }
+
         if (parameters == null) {
-            throw new IllegalArgumentException("Parameters cannot be null");
+            parameters = new HashMap<>();
         }
         
         Object[] paramValues = parameters.values().toArray();

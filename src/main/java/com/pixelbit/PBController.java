@@ -1,6 +1,6 @@
 package com.pixelbit;
 
-import com.pixelbit.command.ApplyFilterCommand;
+import com.pixelbit.command.*;
 import com.pixelbit.model.PBModel;
 import com.pixelbit.model.filter.FilterType;
 import com.pixelbit.view.PBImageView;
@@ -27,10 +27,39 @@ public class PBController {
 
         view.updateImage(null);
         updateUndoRedoButtons(); // Ensure buttons are updated initially
-        view.getOpenItem().setOnAction(event -> handleOpenImage(view.getScene().getWindow()));
-        System.out.println("Exit item: " + view.getExitItem());
-        view.getExitItem().setOnAction(event -> {System.out.println("Exit item clicked"); handleExit();});
 
+        System.out.println("Exit item: " + view.getExitItem());
+
+        // Set up event handlers for the view
+        view.getOpenItem().setOnAction(_ -> model.getCommandManager().executeCommand(new OpenImageCommand(model, view, view.getScene().getWindow())));
+        view.getSaveMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(new SaveImageCommand(model, view.getScene().getWindow())));
+        view.getExitItem().setOnAction(_ -> model.getCommandManager().executeCommand(new ExitCommand()));
+        view.getUndoMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(new UndoCommand(model)));
+        view.getRedoMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(new RedoCommand(model)));
+        view.getGrayscaleButton().setOnAction(_ -> {
+            try {
+                if (model.getImage() == null) {
+                    view.showError("No image loaded");
+                    return;
+                }
+
+                // Apply the Grayscale filter using the appropriate command
+                model.applyEdit(new ApplyFilterCommand(
+                        model.getImageService(),
+                        model.getFilterFactory(),
+                        model.getImage(),
+                        FilterType.GRAYSCALE,
+                        null // No additional parameters needed for Grayscale
+                ));
+
+                // Update the view with the new image and refresh undo/redo button states
+                view.updateImage(model.getImage());
+                updateUndoRedoButtons();
+
+            } catch (Exception e) {
+                view.showError("Failed to apply Grayscale filter: " + e.getMessage());
+            }
+        });
     }
 
     public void onApplyFilter(FilterType filterType, Object... params) {

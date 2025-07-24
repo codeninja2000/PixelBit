@@ -25,10 +25,10 @@ public class FilterFactory {
      */
     public Filter createFilter(FilterType type, Object... params) {
         return switch (type) {
-            case GRAYSCALE -> new GrayscaleFilter();
-            case CONTRAST -> createContrastFilter(params);
-            case BRIGHTNESS -> createBrightnessFilter(params);
-            case SEPIA -> new SepiaFilter();
+            case FilterType.GRAYSCALE -> new GrayscaleFilter();
+            case FilterType.CONTRAST -> createContrastFilter(params);
+            case FilterType.BRIGHTNESS -> createBrightnessFilter(params);
+            case FilterType.SEPIA -> new SepiaFilter();
         };
     }
 

@@ -194,6 +194,7 @@ public class PBModel {
     public boolean canRedo() {
         return commandManager.canRedo();
     }
+
     public ImageService getImageService() {
         return this.commandManager.getImageService();
     }
