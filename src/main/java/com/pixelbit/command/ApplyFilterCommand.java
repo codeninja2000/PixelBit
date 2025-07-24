@@ -7,6 +7,7 @@ import com.pixelbit.model.filter.Filter;
 import com.pixelbit.model.filter.FilterFactory;
 import com.pixelbit.model.filter.FilterType;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +46,8 @@ public class ApplyFilterCommand extends AbstractPBCommand implements ImageUpdate
     public void execute() throws CommandExecException {
         try {
             saveCurrentState();
-            imageService.applyFilter(editableImage.getBufferedImage(), filter);
+            BufferedImage filteredImage = filter.apply(editableImage.getBufferedImage());
+            editableImage.setImage(filteredImage);
         } catch (Exception e) {
             throw new CommandExecException("Error applying filter: " + e.getMessage(), e);
         }
