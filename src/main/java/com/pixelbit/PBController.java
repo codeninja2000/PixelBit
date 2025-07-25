@@ -8,10 +8,6 @@ import com.pixelbit.view.PBImageView;
 import java.util.HashMap;
 import java.util.Map;
 
-import javafx.application.Platform;
-import javafx.stage.FileChooser;
-import javafx.stage.Window;
-import java.io.File;
 /**
  * PBController is the controller class for the JavaFX application.
  * It handles user interactions and updates the UI accordingly.
@@ -26,113 +22,55 @@ public class PBController {
         this.view = view;
 
         view.updateImage(null);
-        updateUndoRedoButtons(); // Ensure buttons are updated initially
-
-        System.out.println("Exit item: " + view.getExitItem());
-
-        // Set up event handlers for the view
-        view.getOpenItem().setOnAction(_ -> model.getCommandManager().executeCommand(new OpenImageCommand(model, view, view.getScene().getWindow())));
-        view.getSaveMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(new SaveImageCommand(model, view.getScene().getWindow())));
-        view.getExitItem().setOnAction(_ -> model.getCommandManager().executeCommand(new ExitCommand()));
-        view.getUndoMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(new UndoCommand(model)));
-        view.getRedoMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(new RedoCommand(model)));
-        view.getGrayscaleButton().setOnAction(_ -> {
-            try {
-                if (model.getImage() == null) {
-                    view.showError("No image loaded");
-                    return;
-                }
-
-        model.applyEdit(new ApplyFilterCommand(
-                model.getImage(),
-                model.getFilterFactory(),
-                FilterType.GRAYSCALE,
-                null  // Grayscale doesn't need parameters
-        ));
-
-        view.updateImage(model.getImage());
         updateUndoRedoButtons();
 
-    } catch (Exception e) {
-        view.showError("Failed to apply Grayscale filter: " + e.getMessage());
-    }
-});
+        // Set up event handlers for the view
+        view.getOpenItem().setOnAction(_ -> model.getCommandManager().executeCommand(
+                new OpenImageCommand(model, view, view.getScene().getWindow())));
+        
+        view.getSaveMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(
+                new SaveImageCommand(model, view.getScene().getWindow())));
+        
+        view.getExitItem().setOnAction(_ -> model.getCommandManager().executeCommand(
+                new ExitCommand()));
+        
+        view.getUndoMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(
+                new UndoCommand(model)));
+        
+        view.getRedoMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(
+                new RedoCommand(model)));
+        
+        view.getGrayscaleButton().setOnAction(_ -> applyFilter(FilterType.GRAYSCALE));
     }
 
-    public void onApplyFilter(FilterType filterType, Object... params) {
+    private void applyFilter(FilterType filterType) {
         try {
             if (model.getImage() == null) {
                 view.showError("No image loaded");
                 return;
             }
 
-            // Map filter parameters
             Map<String, Object> parameters = new HashMap<>();
             switch (filterType) {
-                case BRIGHTNESS -> {
-                    if (params.length > 0) {
-                        parameters.put("brightness", params[0]);
-                    }
-                }
-                case CONTRAST -> {
-                    if (params.length > 0) {
-                        parameters.put("contrast", params[0]);
-                    }
-                }
-                case SEPIA, GRAYSCALE -> {
-                    // No additional parameters needed
-                }
+                case BRIGHTNESS -> parameters.put("brightness", 1.2);
+                case CONTRAST -> parameters.put("contrast", 1.1);
+                case SEPIA, GRAYSCALE -> {} // No parameters needed
             }
 
-            // Delegate command execution to the model
-            model.applyEdit(new ApplyFilterCommand(
-                    model.getImageService(),
-                    model.getFilterFactory(),
+            ApplyFilterCommand command = new ApplyFilterCommand(
                     model.getImage(),
+                    model.getFilterFactory(),
                     filterType,
                     parameters
-            ));
-
-            view.updateImage(model.getImage()); // Update view with new image
+            );
+            
+            model.getCommandManager().executeCommand(command);
+            view.updateImage(model.getImage());
             updateUndoRedoButtons();
+            
         } catch (Exception e) {
             view.showError("Failed to apply filter: " + e.getMessage());
         }
-    }
-
-    private void handleExit() {
-        Platform.exit(); // Terminates the JavaFX application
-    }
-
-    public void handleOpenImage(Window parentWindow) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Image");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
-        );
-
-       File selectedFile = fileChooser.showOpenDialog(parentWindow);
-
-       if (selectedFile != null) {
-           try {
-               model.loadImage(selectedFile);
-                view.updateImage(model.getImage());
-           } catch (Exception e) {
-               view.showError("Failed to open image: " + e.getMessage());
-           }
-       }
-    }
-
-    public void handleUndo() {
-        model.undo();
-        view.updateImage(model.getImage());
-        updateUndoRedoButtons();
-    }
-
-    public void handleRedo() {
-        model.redo();
-        view.updateImage(model.getImage());
-        updateUndoRedoButtons();
     }
 
     private void updateUndoRedoButtons() {

@@ -1,13 +1,8 @@
 package com.pixelbit;
 
-import com.pixelbit.command.CommandManager;
-import com.pixelbit.model.ImageProcessor;
-import com.pixelbit.model.ImageService;
 import com.pixelbit.model.PBModel;
-import com.pixelbit.model.filter.FilterFactory;
 import com.pixelbit.view.PBImageView;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 

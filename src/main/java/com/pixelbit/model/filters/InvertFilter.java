@@ -1,4 +1,6 @@
-package com.pixelbit.model.filter;
+package com.pixelbit.model.filters;
+
+import com.pixelbit.model.filter.Filter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -34,9 +36,12 @@ public class InvertFilter implements Filter {
         return invertedImage;
 }
 
+@Override
 public String getName() {
-    return "Invert";
+        return "Invert";
 }
+
+@Override
 public String toString() {
     return String.format("%sFilter", this.getName());
 }

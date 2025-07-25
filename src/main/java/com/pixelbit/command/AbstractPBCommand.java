@@ -2,7 +2,6 @@ package com.pixelbit.command;
 
 import com.pixelbit.exception.CommandExecException;
 import com.pixelbit.model.EditableImage;
-import com.pixelbit.model.ImageService;
 
 import java.awt.image.BufferedImage;
 
@@ -14,11 +13,11 @@ import java.awt.image.BufferedImage;
 public abstract class AbstractPBCommand implements PBCommand {
     protected final EditableImage editableImage;
     protected BufferedImage previousState;
-    protected final ImageService imageService;
 
-    protected AbstractPBCommand(EditableImage editableImage, ImageService imageService) {
+
+    protected AbstractPBCommand(EditableImage editableImage) {
         this.editableImage = editableImage;
-        this.imageService = imageService;
+
     }
 
 

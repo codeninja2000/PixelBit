@@ -2,7 +2,6 @@ package com.pixelbit.command;
 
 import com.pixelbit.exception.CommandExecException;
 import com.pixelbit.model.EditableImage;
-import com.pixelbit.model.ImageService;
 import com.pixelbit.model.filter.FilterFactory;
 import com.pixelbit.model.filter.FilterType;
 import com.pixelbit.view.UIErrorNotifier;
@@ -22,7 +21,7 @@ public class CommandManager {
 
     private final ArrayDeque<PBCommand> undoStack = new ArrayDeque<>();
     private final ArrayDeque<PBCommand> redoStack = new ArrayDeque<>();
-    private final ImageService imageService;
+
     private final FilterFactory filterFactory;
 private UIErrorNotifier ui;
 /**
@@ -31,18 +30,15 @@ private UIErrorNotifier ui;
      */
 
 
-    public CommandManager(ImageService imageService, FilterFactory filterFactory) {
-        this(imageService, filterFactory, null);
+    public CommandManager(FilterFactory filterFactory) {
+        this(filterFactory, null);
 
     }
-        public CommandManager(ImageService imageService, FilterFactory filterFactory, UIErrorNotifier ui) {
-        this.imageService = imageService;
+        public CommandManager(FilterFactory filterFactory, UIErrorNotifier ui) {
         this.filterFactory = filterFactory;
         this.ui = ui;
     }
-    public ImageService getImageService() {
-        return imageService;
-    }
+
 
     public FilterFactory getFilterFactory() {
         return filterFactory;
@@ -78,8 +74,6 @@ private UIErrorNotifier ui;
             undoStack.push(command);
             redoStack.clear(); // Clear redo stack on new command execution
         } catch (CommandExecException e) {
-            //System.err.println("Error executing command: " + e.getMessage());
-            // TODO: Add logging for developers
             if (ui != null) {
                 ui.showError("Error executing command: " + e.getMessage());
             }
@@ -87,9 +81,10 @@ private UIErrorNotifier ui;
     }
 
     public void executeApplyFilterCommand(EditableImage image, FilterType filterType, Map<String, Object> params) {
-        ApplyFilterCommand command = new ApplyFilterCommand(imageService, filterFactory, image, filterType, params);
+        ApplyFilterCommand command = new ApplyFilterCommand(image,filterFactory, filterType, params);
         executeCommand(command);
     }
+
 
     /**
      * Undoes the last executed command, if possible.
@@ -102,8 +97,6 @@ private UIErrorNotifier ui;
                 command.undo();
                 redoStack.push(command);
             } catch (Exception e) {
-                //System.err.println("Error undoing command: " + e.getMessage());
-                // TODO: Add logging for developers
                 if (ui != null) {
                     ui.showError("Error undoing command: " + e.getMessage());
                 }

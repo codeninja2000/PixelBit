@@ -2,13 +2,11 @@ package com.pixelbit.command;
 
 import com.pixelbit.exception.CommandExecException;
 import com.pixelbit.model.EditableImage;
-import com.pixelbit.model.ImageService;
 import com.pixelbit.model.filter.Filter;
 import com.pixelbit.model.filter.FilterFactory;
 import com.pixelbit.model.filter.FilterType;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.Map;
 
 // This class will replace all the indi
