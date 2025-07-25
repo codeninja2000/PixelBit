@@ -5,5 +5,5 @@ public enum FilterType {
     CONTRAST,
     BRIGHTNESS,
     SEPIA,
-    // INVERT,
+    INVERT,
 }

@@ -34,14 +34,26 @@ public class PBController {
         view.getExitItem().setOnAction(_ -> model.getCommandManager().executeCommand(
                 new ExitCommand()));
         
-        view.getUndoMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(
-                new UndoCommand(model)));
+        view.getUndoMenuItem().setOnAction(_ -> {
+            model.getCommandManager().undo();
+            view.updateImage(model.getImage());
+            updateUndoRedoButtons();
+            resetFilterCounts();
+        });
         
-        view.getRedoMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(
-                new RedoCommand(model)));
+        view.getRedoMenuItem().setOnAction(_ -> {
+            model.getCommandManager().redo();
+            view.updateImage(model.getImage());
+            updateUndoRedoButtons();
+                }
+               );
         
         view.getGrayscaleButton().setOnAction(_ -> applyFilter(FilterType.GRAYSCALE));
+        view.getSepiaButton().setOnAction(_ -> applyFilter(FilterType.SEPIA));
+        view.getInvertButton().setOnAction(_ -> applyFilter(FilterType.INVERT));
     }
+
+    private final Map<FilterType, Integer> filterApplicationCount = new HashMap<>();
 
     private void applyFilter(FilterType filterType) {
         try {
@@ -49,6 +61,10 @@ public class PBController {
                 view.showError("No image loaded");
                 return;
             }
+
+            // Update and get the count of filter applications
+            int count = filterApplicationCount.getOrDefault(filterType, 0) + 1;
+            filterApplicationCount.put(filterType, count);
 
             Map<String, Object> parameters = new HashMap<>();
             switch (filterType) {
@@ -63,14 +79,23 @@ public class PBController {
                     filterType,
                     parameters
             );
-            
+        
             model.getCommandManager().executeCommand(command);
             view.updateImage(model.getImage());
             updateUndoRedoButtons();
-            
+        
+            // Show status message
+            view.showStatus(filterType.toString() + " filter applied" + 
+                       (count > 1 ? " (" + count + " times)" : ""));
+        
         } catch (Exception e) {
             view.showError("Failed to apply filter: " + e.getMessage());
         }
+    }
+
+    // Add this method to reset counts when loading a new image or undoing
+    private void resetFilterCounts() {
+        filterApplicationCount.clear();
     }
 
     private void updateUndoRedoButtons() {

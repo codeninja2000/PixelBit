@@ -21,7 +21,7 @@ public class ContrastFilter implements Filter {
         BufferedImage contrastImage = new BufferedImage(width, image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                Color color = new Color(contrastImage.getRGB(x, y), true); // true = has alpha
+                Color color = new Color(image.getRGB(x, y), true);
                 int r = clamp((int) ((color.getRed() - 128) * factor + 128));
                 int g = clamp((int) ((color.getGreen() - 128) * factor + 128));
                 int b = clamp((int) ((color.getBlue() - 128) * factor + 128));

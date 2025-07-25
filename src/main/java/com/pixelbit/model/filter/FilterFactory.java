@@ -1,10 +1,7 @@
 package com.pixelbit.model.filter;
 
 import com.pixelbit.exception.InvalidFilterParamsException;
-import com.pixelbit.model.filters.BrightnessFilter;
-import com.pixelbit.model.filters.ContrastFilter;
-import com.pixelbit.model.filters.GrayscaleFilter;
-import com.pixelbit.model.filters.SepiaFilter;
+import com.pixelbit.model.filters.*;
 
 
 /**
@@ -29,6 +26,7 @@ public class FilterFactory {
             case FilterType.CONTRAST -> createContrastFilter(params);
             case FilterType.BRIGHTNESS -> createBrightnessFilter(params);
             case FilterType.SEPIA -> new SepiaFilter();
+            case FilterType.INVERT -> new InvertFilter();
         };
     }
 

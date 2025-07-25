@@ -2,10 +2,12 @@ package com.pixelbit.view;
 
 import com.pixelbit.model.EditableImage;
 import javafx.animation.PauseTransition;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -20,6 +22,7 @@ public class PBImageView extends BorderPane {
     private final StackPane mainImagePane = new StackPane(); // StackPane to hold the main image view
     private final ImageView mainImageView = new ImageView(); // ImageView to display the main image
     private final Label errorLabel = new Label();
+    private final Label statusLabel = new Label();
 
     // Menu items
     private final MenuItem openItem = new MenuItem("Open");
@@ -36,6 +39,7 @@ public class PBImageView extends BorderPane {
     private final Slider contrastSlider = new Slider(-1, 1, 0);
     // Path to the default image (in your project's resources folder)
     private final Image defaultImage = new Image(getClass().getResource("/images/dark-checkered-bg.jpg").toString());
+
     public PBImageView() {
         System.out.println(getClass().getResource("/images/placeholder.png"));
         errorLabel.setVisible(false);
@@ -71,11 +75,28 @@ public class PBImageView extends BorderPane {
 
         setTop(topContainer);
         setRight(adjustmentPanel);
-        setBottom(errorLabel);
+
+        statusLabel.setStyle("-fx-padding: 5; -fx-background-color: #f0f0f0");
+
+        HBox bottomContainer = new HBox(10);
+        bottomContainer.setAlignment(Pos.CENTER_LEFT);
+        bottomContainer.getChildren().addAll(errorLabel, statusLabel);
+        setBottom(bottomContainer);
         setStyle("-fx-padding: 10;");
 
     }
-    
+
+    // Add method to update status
+    public void showStatus(String message) {
+        statusLabel.setText(message);
+
+        // Auto-clear after 3 seconds
+        PauseTransition pause = new PauseTransition(javafx.util.Duration.seconds(5));
+        pause.setOnFinished(event -> statusLabel.setText(""));
+        pause.play();
+    }
+
+
     public MenuItem getExitItem() {
         return exitItem;
     }

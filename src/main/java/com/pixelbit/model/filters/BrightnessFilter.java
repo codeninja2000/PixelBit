@@ -26,7 +26,7 @@ public class BrightnessFilter implements Filter {
         BufferedImage brightImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                Color color = new Color(brightImage.getRGB(x, y), true);
+                Color color = new Color(image.getRGB(x, y), true);
                 int r = clamp((int) (color.getRed() * factor));
                 int g = clamp((int) (color.getGreen() * factor));
                 int b = clamp((int) (color.getBlue() * factor));
