@@ -27,30 +27,68 @@ public class PBController {
         // Set up event handlers for the view
         view.getOpenItem().setOnAction(_ -> model.getCommandManager().executeCommand(
                 new OpenImageCommand(model, view, view.getScene().getWindow())));
-        
+
         view.getSaveMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(
                 new SaveImageCommand(model, view.getScene().getWindow())));
-        
+
         view.getExitItem().setOnAction(_ -> model.getCommandManager().executeCommand(
                 new ExitCommand()));
-        
+
         view.getUndoMenuItem().setOnAction(_ -> {
             model.getCommandManager().undo();
             view.updateImage(model.getImage());
             updateUndoRedoButtons();
             resetFilterCounts();
         });
-        
+
         view.getRedoMenuItem().setOnAction(_ -> {
             model.getCommandManager().redo();
             view.updateImage(model.getImage());
             updateUndoRedoButtons();
                 }
                );
-        
+
         view.getGrayscaleButton().setOnAction(_ -> applyFilter(FilterType.GRAYSCALE));
         view.getSepiaButton().setOnAction(_ -> applyFilter(FilterType.SEPIA));
         view.getInvertButton().setOnAction(_ -> applyFilter(FilterType.INVERT));
+
+        // Set up slider listeners
+        view.getBrightnessSlider().valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (model.getImage() != null) {
+                // Convert slider value (-100 to 100) to brightness adjustment (-25 to 25)
+                // Using 0.25 as the multiplier for very subtle changes
+                int brightnessAdjustment = (int)(newVal.doubleValue() * 0.25);
+
+                Map<String, Object> params = new HashMap<>();
+                params.put("brightness", brightnessAdjustment);
+
+                ApplyFilterCommand command = new ApplyFilterCommand(
+            model.getImage(),
+            model.getFilterFactory(),
+            FilterType.BRIGHTNESS,
+            params
+        );
+
+        model.applyEdit(command);
+        view.updateImage(model.getImage());
+    }
+});
+
+        view.getContrastSlider().valueProperty().addListener((obs, oldVal, newVal) -> {
+            Map<String, Object> params = new HashMap<>();
+            params.put("contrast", newVal.doubleValue());
+
+            ApplyFilterCommand command = new ApplyFilterCommand(
+                    model.getImage(),
+                    model.getFilterFactory(),
+                    FilterType.CONTRAST,
+                    params
+            );
+
+            model.applyEdit(command);
+            view.updateImage(model.getImage());
+        });
+
     }
 
     private final Map<FilterType, Integer> filterApplicationCount = new HashMap<>();
@@ -79,15 +117,15 @@ public class PBController {
                     filterType,
                     parameters
             );
-        
+
             model.getCommandManager().executeCommand(command);
             view.updateImage(model.getImage());
             updateUndoRedoButtons();
-        
+
             // Show status message
-            view.showStatus(filterType.toString() + " filter applied" + 
+            view.showStatus(filterType.toString() + " filter applied" +
                        (count > 1 ? " (" + count + " times)" : ""));
-        
+
         } catch (Exception e) {
             view.showError("Failed to apply filter: " + e.getMessage());
         }

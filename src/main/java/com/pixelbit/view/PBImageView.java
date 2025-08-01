@@ -35,7 +35,7 @@ public class PBImageView extends BorderPane {
     private final Button invertButton = new Button("Invert");
     private final Button sepiaButton = new Button("Sepia");
     // Adjustment controls
-    private final Slider brightnessSlider = new Slider(-1, 1, 0);
+    private final Slider brightnessSlider = new Slider(-100, 100, 0);
     private final Slider contrastSlider = new Slider(-1, 1, 0);
     // Path to the default image (in your project's resources folder)
     private final Image defaultImage = new Image(getClass().getResource("/images/dark-checkered-bg.jpg").toString());
