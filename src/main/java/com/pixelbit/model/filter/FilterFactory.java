@@ -38,7 +38,7 @@ public class FilterFactory {
      */
     private Filter createBrightnessFilter(Object[] params) {
         if (params.length == 0) {
-            return new BrightnessFilter();
+            return new BrightnessFilter(0);
         }
         if (params.length == 1 && params[0] instanceof Integer) {
             return new BrightnessFilter((Integer) params[0]);

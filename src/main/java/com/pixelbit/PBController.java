@@ -1,6 +1,10 @@
 package com.pixelbit;
 
-import com.pixelbit.command.*;
+import com.pixelbit.command.ApplyFilterCommand;
+import com.pixelbit.command.ExitCommand;
+import com.pixelbit.command.OpenImageCommand;
+import com.pixelbit.command.SaveImageCommand;
+import com.pixelbit.exception.CommandExecException;
 import com.pixelbit.model.PBModel;
 import com.pixelbit.model.filter.FilterType;
 import com.pixelbit.view.PBImageView;
@@ -42,11 +46,11 @@ public class PBController {
         });
 
         view.getRedoMenuItem().setOnAction(_ -> {
-            model.getCommandManager().redo();
-            view.updateImage(model.getImage());
-            updateUndoRedoButtons();
+                    model.getCommandManager().redo();
+                    view.updateImage(model.getImage());
+                    updateUndoRedoButtons();
                 }
-               );
+        );
 
         view.getGrayscaleButton().setOnAction(_ -> applyFilter(FilterType.GRAYSCALE));
         view.getSepiaButton().setOnAction(_ -> applyFilter(FilterType.SEPIA));
@@ -55,38 +59,71 @@ public class PBController {
         // Set up slider listeners
         view.getBrightnessSlider().valueProperty().addListener((obs, oldVal, newVal) -> {
             if (model.getImage() != null) {
-                // Convert slider value (-100 to 100) to brightness adjustment (-25 to 25)
-                // Using 0.25 as the multiplier for very subtle changes
-                int brightnessAdjustment = (int)(newVal.doubleValue() * 0.25);
+                // Convert slider value (-100 to 100) to a reasonable brightness adjustment
+                // Divide by 100 to get a value between -1.0 and 1.0, then multiply by 0.5
+                // to make the adjustment more subtle (-0.5 to 0.5)
+                int brightnessAdjustment = (int) ((newVal.doubleValue() / 100.0) * 0.5 * 255);
 
                 Map<String, Object> params = new HashMap<>();
                 params.put("brightness", brightnessAdjustment);
 
                 ApplyFilterCommand command = new ApplyFilterCommand(
-            model.getImage(),
-            model.getFilterFactory(),
-            FilterType.BRIGHTNESS,
-            params
-        );
+                        model.getImage(),
+                        model.getFilterFactory(),
+                        FilterType.BRIGHTNESS,
+                        params
+                );
 
-        model.applyEdit(command);
-        view.updateImage(model.getImage());
-    }
-});
+                try {
+                    model.replaceEdit(command);
+                    view.updateImage(model.getImage());
+                } catch (CommandExecException e) {
+                    view.showError("Failed to apply brightness: " + e.getMessage());
+                }
+                view.updateImage(model.getImage());
+            }
+        });
+        view.getResetButton().setOnAction(_ -> {
+            if (model.getImage() != null) {
+                try {
+                    model.getImage().resetToOriginal();
+                    view.updateImage(model.getImage());
+
+                    // Reset sliders to default positions
+                    view.getBrightnessSlider().setValue(0);
+                    view.getContrastSlider().setValue(0);
+
+                    // Clear command history since we're resetting to original
+                    model.getCommandManager().clearHistory();
+                    updateUndoRedoButtons();
+
+                    view.showStatus("Image reset to original");
+                } catch (Exception e) {
+                    view.showError("Failed to reset image: " + e.getMessage());
+                }
+            }
+        });
+
 
         view.getContrastSlider().valueProperty().addListener((obs, oldVal, newVal) -> {
-            Map<String, Object> params = new HashMap<>();
-            params.put("contrast", newVal.doubleValue());
+            if (model.getImage() != null) {
+                Map<String, Object> params = new HashMap<>();
+                params.put("contrast", newVal.doubleValue());
 
-            ApplyFilterCommand command = new ApplyFilterCommand(
-                    model.getImage(),
-                    model.getFilterFactory(),
-                    FilterType.CONTRAST,
-                    params
-            );
+                ApplyFilterCommand command = new ApplyFilterCommand(
+                        model.getImage(),
+                        model.getFilterFactory(),
+                        FilterType.CONTRAST,
+                        params
+                );
 
-            model.applyEdit(command);
-            view.updateImage(model.getImage());
+                try {
+                    model.replaceEdit(command);
+                    view.updateImage(model.getImage());
+                } catch (CommandExecException e) {
+                    view.showError("Failed to apply contrast: " + e.getMessage());
+                }
+            }
         });
 
     }
@@ -108,7 +145,8 @@ public class PBController {
             switch (filterType) {
                 case BRIGHTNESS -> parameters.put("brightness", 1.2);
                 case CONTRAST -> parameters.put("contrast", 1.1);
-                case SEPIA, GRAYSCALE -> {} // No parameters needed
+                case SEPIA, GRAYSCALE -> {
+                } // No parameters needed
             }
 
             ApplyFilterCommand command = new ApplyFilterCommand(
@@ -124,7 +162,7 @@ public class PBController {
 
             // Show status message
             view.showStatus(filterType.toString() + " filter applied" +
-                       (count > 1 ? " (" + count + " times)" : ""));
+                    (count > 1 ? " (" + count + " times)" : ""));
 
         } catch (Exception e) {
             view.showError("Failed to apply filter: " + e.getMessage());

@@ -3,6 +3,7 @@ package com.pixelbit.model;
 import com.pixelbit.command.ApplyFilterCommand;
 import com.pixelbit.command.CommandManager;
 import com.pixelbit.command.PBCommand;
+import com.pixelbit.exception.CommandExecException;
 import com.pixelbit.model.filter.FilterFactory;
 import com.pixelbit.util.ImageUtility;
 
@@ -52,6 +53,13 @@ public class PBModel {
         this();
         load(file);
     }
+
+    public void replaceEdit(PBCommand command) throws CommandExecException {
+        image.resetToOriginal();
+        command.execute();
+        // Don't add to command history since we're just updating the current state
+    }
+
 
     public CommandManager getCommandManager() {
         return commandManager;

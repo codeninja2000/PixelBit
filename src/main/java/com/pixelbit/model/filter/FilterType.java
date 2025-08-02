@@ -6,4 +6,5 @@ public enum FilterType {
     BRIGHTNESS,
     SEPIA,
     INVERT,
+    CROP
 }

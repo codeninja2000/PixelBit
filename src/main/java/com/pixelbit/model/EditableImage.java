@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 public class EditableImage {
 
     private BufferedImage image;
+    private BufferedImage originalImage; // Store the original image
     private String filename = "default";
     private String format = "jpg";
     final private long createdAt = System.currentTimeMillis();
@@ -59,6 +60,9 @@ public class EditableImage {
      */
     public EditableImage(BufferedImage image) {
         this.image = image;
+        // Keep a deep copy of the original image
+        this.originalImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        this.originalImage.getGraphics().drawImage(image, 0, 0, null);
     }
 
 
@@ -188,5 +192,15 @@ public class EditableImage {
     public void setRGB(int x, int y, int value) {
         image.setRGB(x, y, value);
     }
-}
 
+    // Add method to get original image
+    public BufferedImage getOriginalImage() {
+        return originalImage;
+    }
+
+    // Add method to reset to original
+    public void resetToOriginal() {
+        this.image = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
+        this.image.getGraphics().drawImage(originalImage, 0, 0, null);
+    }
+}

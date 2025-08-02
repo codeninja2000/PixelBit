@@ -10,17 +10,23 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 
 
 /**
  * PBImageView will contain GUI logic for displaying images.
  */
 public class PBImageView extends BorderPane {
+    // ... other existing fields ...
+
+    private final StackPane mainImagePane;
+    private final ImageView mainImageView;
+    private final Label placeholderLabel;
    
     // Add a new VBox for the main image view
     //private final VBox mainImagePane = new VBox();
-    private final StackPane mainImagePane = new StackPane(); // StackPane to hold the main image view
-    private final ImageView mainImageView = new ImageView(); // ImageView to display the main image
+    //private final StackPane mainImagePane = new StackPane(); // StackPane to hold the main image view
+    //private final ImageView mainImageView = new ImageView(); // ImageView to display the main image
     private final Label errorLabel = new Label();
     private final Label statusLabel = new Label();
 
@@ -41,28 +47,54 @@ public class PBImageView extends BorderPane {
     private final Image defaultImage = new Image(getClass().getResource("/images/dark-checkered-bg.jpg").toString());
 
     public PBImageView() {
+        // Initialize components
+        mainImagePane = new StackPane();
+        mainImageView = new ImageView();
+        placeholderLabel = createPlaceholderLabel();
+        
+        // Configure main image pane
+        mainImagePane.setStyle("-fx-background-color: #f8f8f8; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
+        mainImagePane.setPrefSize(800, 600);
+        mainImagePane.setMinSize(400, 300);
+        
+        // Configure image view
+        mainImageView.setPreserveRatio(true);
+        mainImageView.setSmooth(true);
+        mainImageView.setCache(true);
+
         System.out.println(getClass().getResource("/images/placeholder.png"));
         errorLabel.setVisible(false);
 
         // Initialize with the default image
-        mainImageView.setImage(defaultImage);
+        //mainImageView.setImage(defaultImage);
 //        mainImagePane.setVisible(true);
 //        mainImagePane.setManaged(true);
 
 
         // Configure ImageView for the main image pane
 //        mainImageView.setPreserveRatio(true);
-        mainImageView.setFitWidth(800);  // Default width
-        mainImageView.setFitHeight(600); // Default height
+//        mainImageView.setFitWidth(800);  // Default width
+//        mainImageView.setFitHeight(600); // Default height
 
         // Style the mainImagePane
-        mainImagePane.setStyle("-fx-background-color: white; -fx-padding: 10;");
+//        mainImagePane.setStyle("-fx-background-color: white; -fx-padding: 10;");
 
-        mainImagePane.getChildren().add(mainImageView);
+        //mainImagePane.getChildren().add(mainImageView);
         mainImagePane.setId("mainImagePane");
 
+        // Set up the main image pane with both placeholder and image view
+        mainImagePane.getChildren().addAll(placeholderLabel, mainImageView);
+
+        setupResizeListener();
+
+        // Center the main image pane in a larger container with padding
+        StackPane centerContainer = new StackPane();
+        centerContainer.setStyle("-fx-padding: 20; -fx-background-color: white;");
+        centerContainer.getChildren().add(mainImagePane);
+        setCenter(centerContainer);
+        
         // Add the mainImagePane to the layout (e.g., center of the BorderPane)
-        setCenter(mainImagePane);
+        //setCenter(mainImagePane);
 
         // Create and set up existing UI components
         MenuBar menuBar = createMenuBar();
@@ -84,6 +116,77 @@ public class PBImageView extends BorderPane {
         setBottom(bottomContainer);
         setStyle("-fx-padding: 10;");
 
+    }
+    
+    private Label createPlaceholderLabel() {
+        Label label = new Label("No Image Loaded\nClick File → Open to load an image");
+        label.setStyle("-fx-font-size: 16; -fx-text-fill: #666666; -fx-font-weight: bold;");
+        label.setAlignment(Pos.CENTER);
+        label.setTextAlignment(TextAlignment.CENTER);
+        label.setWrapText(true);
+        return label;
+    }
+    
+    public void updateImage(EditableImage editableImage) {
+        if (editableImage == null || editableImage.isEmpty()) {
+            mainImageView.setImage(null);
+            mainImageView.setVisible(false);
+            placeholderLabel.setVisible(true);
+        } else {
+            Image image = editableImage.toJavaFXImage();
+            mainImageView.setImage(image);
+            
+            // Calculate the scaling to fit the image within the pane
+            double paneWidth = mainImagePane.getWidth();
+            double paneHeight = mainImagePane.getHeight();
+            double imageWidth = image.getWidth();
+            double imageHeight = image.getHeight();
+            
+            double scale = Math.min(
+                paneWidth / imageWidth,
+                paneHeight / imageHeight
+            );
+            
+            // Apply the scaling
+            mainImageView.setFitWidth(imageWidth * scale);
+            mainImageView.setFitHeight(imageHeight * scale);
+            
+            mainImageView.setVisible(true);
+            placeholderLabel.setVisible(false);
+        }
+    }
+    
+    // Add a listener for pane resizing to adjust the image size
+    private void setupResizeListener() {
+        mainImagePane.widthProperty().addListener((obs, oldVal, newVal) -> {
+            if (mainImageView.getImage() != null) {
+                updateImageSize();
+            }
+        });
+        
+        mainImagePane.heightProperty().addListener((obs, oldVal, newVal) -> {
+            if (mainImageView.getImage() != null) {
+                updateImageSize();
+            }
+        });
+    }
+    
+    private void updateImageSize() {
+        Image image = mainImageView.getImage();
+        if (image != null) {
+            double paneWidth = mainImagePane.getWidth();
+            double paneHeight = mainImagePane.getHeight();
+            double imageWidth = image.getWidth();
+            double imageHeight = image.getHeight();
+            
+            double scale = Math.min(
+                paneWidth / imageWidth,
+                paneHeight / imageHeight
+            );
+            
+            mainImageView.setFitWidth(imageWidth * scale);
+            mainImageView.setFitHeight(imageHeight * scale);
+        }
     }
 
     // Add method to update status
@@ -134,12 +237,17 @@ public class PBImageView extends BorderPane {
         VBox adjustmentPanel = new VBox(10);
         adjustmentPanel.setStyle("-fx-padding: 10; -fx-background-color: #f4f4f4;");
 
+        Button resetButton = new Button("Reset to Original");
+        resetButton.setMaxWidth(Double.MAX_VALUE);
+
         adjustmentPanel.getChildren().addAll(
                 new Label("Adjustments"),
                 new Label("Brightness: "),
                 brightnessSlider,
                 new Label("Contrast: "),
-                contrastSlider
+                contrastSlider,
+                new Separator(),
+                resetButton
         );
         return adjustmentPanel;
     }
@@ -156,33 +264,37 @@ public class PBImageView extends BorderPane {
     // Getters for adjustment controls
     public Slider getBrightnessSlider() { return brightnessSlider; }
     public Slider getContrastSlider() { return contrastSlider; }
-
-
-    /**
-     * Updates the ImageView with a new EditableImage.
-     *
-     * @param editableImage the EditableImage to display
-     */
-    public void updateImage(EditableImage editableImage) {
-        //System.out.println("EditableImage empty? " + editableImage.isEmpty());
-        if (editableImage == null || editableImage.isEmpty()) {
-            // Handle the case where there's no image to display
-            mainImageView.setImage(defaultImage);
-
-        } else {
-            // Convert EditableImage to a JavaFX Image and display it
-            mainImageView.setImage(editableImage.toJavaFXImage());
-
-        }
-
-        mainImageView.setPreserveRatio(true); // Ensure the aspect ratio is preserved
-        mainImageView.setFitWidth(800);       // Fixed width
-        mainImageView.setFitHeight(600);      // Fixed height
-
-        mainImagePane.setVisible(true);
-        mainImagePane.setManaged(true);
-
+    public Button getResetButton() {
+        return (Button) ((VBox) getRight()).getChildren().get(6); // Get the reset button from the adjustment panel
     }
+
+
+
+//    /**
+//     * Updates the ImageView with a new EditableImage.
+//     *
+//     * @param editableImage the EditableImage to display
+//     */
+    //public void updateImage(EditableImage editableImage) {
+    //    //System.out.println("EditableImage empty? " + editableImage.isEmpty());
+    //    if (editableImage == null || editableImage.isEmpty()) {
+    //        // Handle the case where there's no image to display
+    //        mainImageView.setImage(defaultImage);
+
+    //    } else {
+    //        // Convert EditableImage to a JavaFX Image and display it
+    //        mainImageView.setImage(editableImage.toJavaFXImage());
+
+    //    }
+
+    //    mainImageView.setPreserveRatio(true); // Ensure the aspect ratio is preserved
+    //    mainImageView.setFitWidth(800);       // Fixed width
+    //    mainImageView.setFitHeight(600);      // Fixed height
+
+    //    mainImagePane.setVisible(true);
+    //    mainImagePane.setManaged(true);
+
+    //}
 
     public void showError(String message) {
         errorLabel.setText("Error: " + message);
