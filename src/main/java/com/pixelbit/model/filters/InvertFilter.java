@@ -5,9 +5,13 @@ import com.pixelbit.model.filter.Filter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * InvertFilter applies an invert effect to an image, reversing the RGB color values.
+ * The alpha channel is preserved, allowing for transparent images to remain transparent.
+ */
 public class InvertFilter implements Filter {
 
-    public static final int MAX_RGB_VALUE = 255;
+    public static final int MAX_RGB_VALUE = 255; // Maximum value for RGB components
 
     /**
      * Applies an invert filter to the given image.
@@ -36,11 +40,21 @@ public class InvertFilter implements Filter {
         return invertedImage;
 }
 
+/**
+ * Returns the name of the filter.
+ *
+ * @return The name of the filter.
+ */
 @Override
 public String getName() {
         return "Invert";
 }
 
+/**
+ * Returns a string representation of the filter.
+ *
+ * @return A string representation of the filter.
+ */
 @Override
 public String toString() {
     return String.format("%sFilter", this.getName());

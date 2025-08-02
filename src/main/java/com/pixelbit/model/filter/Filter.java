@@ -2,6 +2,10 @@ package com.pixelbit.model.filter;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * The Filter interface defines a contract for image filters.
+ * Implementing classes should provide the logic to apply a filter to an image.
+ */
 public interface Filter {
     /**
      * Applies the filter to the given image.

@@ -7,20 +7,31 @@ import javafx.stage.Window;
 
 import java.io.File;
 
+/**
+ * SaveImageCommand is responsible for saving the current image in the PBModel to a file.
+ * It uses a FileChooser to allow the user to select the save location and file type.
+ */
 public class SaveImageCommand implements PBCommand{
     private final PBModel model;
     private final Window window;
 
+    /**
+     * Constructor for SaveImageCommand.
+     *
+     * @param model The PBModel containing the image to be saved.
+     * @param window The window from which the FileChooser will be displayed.
+     */
     public SaveImageCommand(PBModel model, Window window) {
         this.model = model;
         this.window = window;
     }
 
-
-
-
     /**
-     * @throws CommandExecException
+     * Executes the command to save the image.
+     * Displays a FileChooser dialog to select the save location and file type.
+     * Saves the image from the model to the selected file.
+     *
+     * @throws CommandExecException if there is an error during the save operation,
      */
     @Override
     public void execute() throws CommandExecException {
@@ -48,10 +59,12 @@ public class SaveImageCommand implements PBCommand{
     }
 
     /**
+     * Undoes the command. This command does not support undo functionality.
      *
+     * @throws UnsupportedOperationException if called
      */
     @Override
     public void undo() {
-
+        throw new UnsupportedOperationException("Undo operation is not supported for SaveImageCommand.");
     }
 }

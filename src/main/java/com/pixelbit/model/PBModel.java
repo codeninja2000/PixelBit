@@ -26,6 +26,10 @@ public class PBModel {
     // and reset to false when the image is loaded, replaced, or saved.
     private boolean isModified = false;
 
+    /**
+     * Default constructor initializes an empty model with a blank image.
+     * It also initializes the CommandManager with a FilterFactory.
+     */
     public PBModel() {
         this.image = new EditableImage(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB));
         FilterFactory filterFactory = new FilterFactory();
@@ -54,13 +58,24 @@ public class PBModel {
         load(file);
     }
 
+    /**
+     * Replaces the current image with a new one loaded from the specified path.
+     * This method executes the command but does not add it to the command history.
+     *
+     * @param command the command to execute that replaces the current image
+     * @throws CommandExecException if the command execution fails
+     */
     public void replaceEdit(PBCommand command) throws CommandExecException {
         image.resetToOriginal();
         command.execute();
         // Don't add to command history since we're just updating the current state
     }
 
-
+    /**
+     * Returns the CommandManager associated with this model.
+     *
+     * @return the CommandManager instance
+     */
     public CommandManager getCommandManager() {
         return commandManager;
     }
@@ -123,14 +138,8 @@ public class PBModel {
      */
     public void applyEdit(PBCommand command) {
         commandManager.executeCommand(command);
-        updateImageIfNeeded(command);
-        isModified = true;
-    }
 
-    private void updateImageIfNeeded(PBCommand command) {
-        if (command instanceof ApplyFilterCommand imageCommand) {
-            this.image = imageCommand.getUpdatedImage();
-        }
+        isModified = true;
     }
 
     /**
@@ -167,6 +176,11 @@ public class PBModel {
         return commandManager.canRedo();
     }
 
+    /**
+     * Returns the FilterFactory used by the CommandManager.
+     *
+     * @return the FilterFactory instance
+     */
     public FilterFactory getFilterFactory() {
         return this.commandManager.getFilterFactory();
     }

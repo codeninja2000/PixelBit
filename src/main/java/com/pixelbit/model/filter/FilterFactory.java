@@ -3,62 +3,91 @@ package com.pixelbit.model.filter;
 import com.pixelbit.exception.InvalidFilterParamsException;
 import com.pixelbit.model.filters.*;
 
+import java.util.Map;
+
 
 /**
- * FilterFactory is responsible for creating instances of different filters.
- * It uses the FilterType enum to determine which filter to create.
- * It also allows for parameters to be passed to the filter constructors,
- * such as brightness and contrast levels.
+ * Factory class for creating filter instances based on the specified type and parameters.
  */
 public class FilterFactory {
-
     /**
      * Creates a filter based on the specified type and parameters.
      *
      * @param type   The type of filter to create.
-     * @param params Optional parameters for the filter, such as brightness or contrast levels.
+     * @param params Parameters for the filter as a Map
      * @return An instance of the specified filter type.
-     * @throws InvalidFilterParamsException if the provided parameters are invalid for the specified filter type.
+     * @throws InvalidFilterParamsException if the provided parameters are invalid.
      */
-    public Filter createFilter(FilterType type, Object... params) {
+    public Filter createFilter(FilterType type, Map<String, Object> params) {
         return switch (type) {
-            case FilterType.GRAYSCALE -> new GrayscaleFilter();
-            case FilterType.CONTRAST -> createContrastFilter(params);
-            case FilterType.BRIGHTNESS -> createBrightnessFilter(params);
-            case FilterType.SEPIA -> new SepiaFilter();
-            case FilterType.INVERT -> new InvertFilter();
+            case GRAYSCALE -> new GrayscaleFilter();
+            case CONTRAST -> createContrastFilter(params);
+            case BRIGHTNESS -> createBrightnessFilter(params);
+            case SEPIA -> new SepiaFilter();
+            case INVERT -> new InvertFilter();
+            case CROP -> createCropFilter(params);
         };
     }
 
     /**
-     * Creates a BrightnessFilter with the specified parameters.
+     * Creates a brightness filter with the specified parameters.
+     * If no brightness parameter is provided, a default value of 0 is used.
      *
-     * @param params Optional parameters for the BrightnessFilter. Currently only supports a double value for brightness level.
-     * @return An instance of BrightnessFilter.
+     * @param params Parameters for the brightness filter as a Map
+     * @return An instance of BrightnessFilter with the specified brightness value.
      */
-    private Filter createBrightnessFilter(Object[] params) {
-        if (params.length == 0) {
-            return new BrightnessFilter(0);
+    private Filter createBrightnessFilter(Map<String, Object> params) {
+        if (params == null || !params.containsKey("brightness")) {
+            return new BrightnessFilter(0); // default value
         }
-        if (params.length == 1 && params[0] instanceof Integer) {
-            return new BrightnessFilter((Integer) params[0]);
+        try {
+            int brightness = ((Number) params.get("brightness")).intValue();
+            return new BrightnessFilter(brightness);
+        } catch (ClassCastException e) {
+            throw new InvalidFilterParamsException("Invalid brightness parameter");
         }
-        throw new InvalidFilterParamsException("Invalid parameters for BrightnessFilter");
     }
 
     /**
-     * Creates a ContrastFilter with the specified parameters.
+     * Creates a contrast filter with the specified parameters.
+     * If no contrast parameter is provided, a default value of 1.0 is used.
      *
-     * @param params Optional parameters for the ContrastFilter. Currently only supports a double value for contrast factor.
-     * @return An instance of ContrastFilter.
+     * @param params Parameters for the contrast filter as a Map
+     * @return An instance of ContrastFilter with the specified contrast value.
      */
-    private Filter createContrastFilter(Object[] params) {
-        if (params.length == 0) {
-            return new ContrastFilter(1.0); // Default contrast factor
+    private Filter createContrastFilter(Map<String, Object> params) {
+        if (params == null || !params.containsKey("contrast")) {
+            return new ContrastFilter(1.0); // default value
         }
-        if (params.length == 1 && params[0] instanceof Double) {
-            return new ContrastFilter((Double) params[0]);
+        try {
+            double contrast = ((Number) params.get("contrast")).doubleValue();
+            return new ContrastFilter(contrast);
+        } catch (ClassCastException e) {
+            throw new InvalidFilterParamsException("Invalid contrast parameter");
         }
-        throw new InvalidFilterParamsException("Invalid parameters for ContrastFilter");
+    }
+
+    /**
+     * Creates a crop filter with the specified parameters.
+     * The parameters must include x, y, width, and height.
+     *
+     * @param params Parameters for the crop filter as a Map
+     * @return An instance of CropFilter with the specified cropping dimensions.
+     * @throws InvalidFilterParamsException if the required parameters are missing or invalid.
+     */
+    private Filter createCropFilter(Map<String, Object> params) {
+        if (params == null || !params.containsKey("x") || !params.containsKey("y") 
+            || !params.containsKey("width") || !params.containsKey("height")) {
+            throw new InvalidFilterParamsException("Crop filter requires x, y, width, and height parameters");
+        }
+        try {
+            int x = ((Number) params.get("x")).intValue();
+            int y = ((Number) params.get("y")).intValue();
+            int width = ((Number) params.get("width")).intValue();
+            int height = ((Number) params.get("height")).intValue();
+            return new CropFilter(x, y, width, height);
+        } catch (ClassCastException e) {
+            throw new InvalidFilterParamsException("Invalid crop parameters");
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.pixelbit.model.filters;
 
-import com.pixelbit.exception.CommandExecException;
 import com.pixelbit.model.filter.Filter;
 
 import java.awt.*;
@@ -15,6 +14,14 @@ public class GrayscaleFilter implements Filter {
     private static final double GREEN_COEFFICIENT = 0.587;
     private static final double BLUE_COEFFICIENT = 0.114;
 
+    /**
+     * Applies a grayscale filter to the given image.
+     * This method converts each pixel of the image to its grayscale equivalent
+     * using the luminosity method, which takes into account human perception of color brightness.
+     *
+     * @param image The input image to be converted to grayscale.
+     * @return A new BufferedImage that is the grayscale version of the input image.
+     */
     @Override
     public BufferedImage apply(BufferedImage image) {
 
@@ -38,6 +45,12 @@ public class GrayscaleFilter implements Filter {
         return grayImage;
     }
 
+    /**
+     * Returns the name of the filter.
+     * This method is used to identify the filter in user interfaces or logs.
+     *
+     * @return A string representing the name of the filter.
+     */
     @Override
     public String getName() {
         return "Grayscale Filter";

@@ -6,9 +6,22 @@ package com.pixelbit.exception;
  * or any other execution-related problems.
  */
 public class CommandExecException extends Exception {
+
+    /**
+     * Constructs a new CommandExecException with the specified detail message.
+     *
+     * @param message the detail message
+     */
     public CommandExecException(String message) {
         super(message);
     }
+
+    /**
+     * Constructs a new CommandExecException with the specified detail message and cause.
+     *
+     * @param message the detail message
+     * @param cause the cause of the exception
+     */
     public CommandExecException(String message, Throwable cause) {
         super(message, cause);
     }

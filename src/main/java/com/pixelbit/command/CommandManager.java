@@ -1,15 +1,10 @@
 package com.pixelbit.command;
 
 import com.pixelbit.exception.CommandExecException;
-import com.pixelbit.model.EditableImage;
 import com.pixelbit.model.filter.FilterFactory;
-import com.pixelbit.model.filter.FilterType;
 import com.pixelbit.view.UIErrorNotifier;
 
 import java.util.ArrayDeque;
-import java.util.Map;
-
-// TODO: Redo exception handling so that a CommandExecException is thrown and handled further up the stack (like in the controller).
 
 /**
  * CommandManager is responsible for managing the execution, undo, and redo of commands.
@@ -19,27 +14,40 @@ import java.util.Map;
  */
 public class CommandManager {
 
-    private final ArrayDeque<PBCommand> undoStack = new ArrayDeque<>();
-    private final ArrayDeque<PBCommand> redoStack = new ArrayDeque<>();
+    private final ArrayDeque<PBCommand> undoStack = new ArrayDeque<>(); // Stack for undo operations
+    private final ArrayDeque<PBCommand> redoStack = new ArrayDeque<>(); // Stack for redo operations
 
-    private final FilterFactory filterFactory;
-private UIErrorNotifier ui;
-/**
-     * Optional UI notifier to display error messages.
-     * If null, errors will not be displayed in the UI.
+    private final FilterFactory filterFactory; // Factory for creating filters
+    private UIErrorNotifier ui; // Optional UI notifier for error messages
+
+
+    /**
+     * Constructs a CommandManager with a FilterFactory and a null UIErrorNotifier.
+     *
+     * @param filterFactory the FilterFactory used to create filters for commands.
      */
-
-
     public CommandManager(FilterFactory filterFactory) {
         this(filterFactory, null);
 
     }
-        public CommandManager(FilterFactory filterFactory, UIErrorNotifier ui) {
+
+    /**
+     * Constructs a CommandManager with a FilterFactory and a UIErrorNotifier.
+     *
+     * @param filterFactory the FilterFactory used to create filters for commands.
+     * @param ui            the UIErrorNotifier used to notify the UI of errors during command execution.
+     */
+    public CommandManager(FilterFactory filterFactory, UIErrorNotifier ui) {
         this.filterFactory = filterFactory;
         this.ui = ui;
     }
 
 
+    /**
+     * Gets the FilterFactory used by this CommandManager.
+     *
+     * @return the FilterFactory instance.
+     */
     public FilterFactory getFilterFactory() {
         return filterFactory;
     }
@@ -80,12 +88,6 @@ private UIErrorNotifier ui;
         }
     }
 
-    public void executeApplyFilterCommand(EditableImage image, FilterType filterType, Map<String, Object> params) {
-        ApplyFilterCommand command = new ApplyFilterCommand(image,filterFactory, filterType, params);
-        executeCommand(command);
-    }
-
-
     /**
      * Undoes the last executed command, if possible.
      * If an error occurs during undo, it notifies the UI if a UIErrorNotifier is set.
@@ -93,7 +95,7 @@ private UIErrorNotifier ui;
     public void undo() {
         if (canUndo()) {
             try {
-            PBCommand command = undoStack.pop();
+                PBCommand command = undoStack.pop();
                 command.undo();
                 redoStack.push(command);
             } catch (Exception e) {
@@ -111,12 +113,11 @@ private UIErrorNotifier ui;
     public void redo() {
         if (canRedo()) {
             try {
-            PBCommand command = redoStack.pop();
+                PBCommand command = redoStack.pop();
                 command.execute();
                 undoStack.push(command);
             } catch (Exception e) {
                 System.err.println("Error redoing command: " + e.getMessage());
-                // TODO: Add logging for developers
                 if (ui != null) {
                     ui.showError("Error redoing command: " + e.getMessage());
                 }
@@ -141,6 +142,11 @@ private UIErrorNotifier ui;
         return !undoStack.isEmpty();
     }
 
+    /**
+     * Checks if there are commands available to redo.
+     *
+     * @return true if there are commands in the redo stack, false otherwise.
+     */
     public boolean canRedo() {
         return !redoStack.isEmpty();
     }

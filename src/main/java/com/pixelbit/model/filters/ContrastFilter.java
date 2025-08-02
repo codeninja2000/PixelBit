@@ -4,13 +4,31 @@ import com.pixelbit.model.filter.Filter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * ContrastFilter applies a contrast adjustment to an image.
+ * The adjustment value should be between -1.0 (decrease contrast) and 1.0 (increase contrast).
+ * Values outside this range will be clamped.
+ * A value of 0.0 means no change.
+ */
 public class ContrastFilter implements Filter {
-    private final double adjustment;
+    private final double adjustment; // Adjustment value between -1.0 and 1.0
 
+    /**
+     * Constructs a ContrastFilter with the specified adjustment.
+     *
+     * @param adjustment The contrast adjustment value, where -1.0 decreases contrast,
+     *                   0.0 means no change, and 1.0 increases contrast.
+     */
     public ContrastFilter(double adjustment) {
         this.adjustment = adjustment;
     }
 
+    /**
+     * Applies the contrast adjustment to the given image.
+     *
+     * @param image The input image to adjust.
+     * @return A new BufferedImage with the contrast adjusted.
+     */
     @Override
     public BufferedImage apply(BufferedImage image) {
         int width = image.getWidth();
@@ -43,6 +61,13 @@ public class ContrastFilter implements Filter {
         return contrastImage;
     }
 
+    /**
+     * Adjusts the contrast of a single color channel.
+     *
+     * @param value The original color channel value (0-255).
+     * @param factor The contrast adjustment factor.
+     * @return The adjusted color channel value, clamped to 0-255.
+     */
     private int adjustContrast(int value, double factor) {
         // Adjust relative to middle gray (128)
         double difference = value - 128;
@@ -50,10 +75,21 @@ public class ContrastFilter implements Filter {
         return clamp((int) adjusted);
     }
 
+    /**
+     * Clamps a value to the range 0-255.
+     *
+     * @param value The value to clamp.
+     * @return The clamped value.
+     */
     private int clamp(int value) {
         return Math.min(255, Math.max(0, value));
     }
 
+    /**
+     * Returns the name of the filter.
+     *
+     * @return The name of the filter.
+     */
     @Override
     public String getName() {
         return "Contrast Filter";

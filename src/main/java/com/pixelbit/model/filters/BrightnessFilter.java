@@ -4,13 +4,29 @@ import com.pixelbit.model.filter.Filter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * BrightnessFilter adjusts the brightness of an image by a specified amount.
+ * Positive values brighten the image, while negative values darken it.
+ */
 public class BrightnessFilter implements Filter {
-    private final int adjustment;
+    private final int adjustment; // Adjustment value in the range of -255 to 255
 
+    /**
+     * Constructs a BrightnessFilter with the specified adjustment value.
+     *
+     * @param adjustment The amount to adjust brightness. Positive values brighten,
+     *                   negative values darken the image.
+     */
     public BrightnessFilter(int adjustment) {
         this.adjustment = adjustment;
     }
 
+    /**
+     * Applies the brightness adjustment to the given image.
+     *
+     * @param image The image to adjust.
+     * @return A new BufferedImage with the brightness adjusted.
+     */
     @Override
     public BufferedImage apply(BufferedImage image) {
         int width = image.getWidth();
@@ -51,10 +67,21 @@ public class BrightnessFilter implements Filter {
         return brightImage;
     }
 
+    /**
+     * Clamps the RGB values to ensure they are within the valid range of 0 to 255.
+     *
+     * @param value The RGB value to clamp.
+     * @return The clamped value.
+     */
     private int clamp(int value) {
         return Math.min(255, Math.max(0, value));
     }
 
+    /**
+     * Returns the name of the filter.
+     *
+     * @return The name of the filter.
+     */
     @Override
     public String getName() {
         return "Brightness Filter";

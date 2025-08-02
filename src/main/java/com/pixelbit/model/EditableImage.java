@@ -13,10 +13,15 @@ import java.awt.image.BufferedImage;
  */
 public class EditableImage {
 
+    /** Default values for image properties */
+    public static final String DEFAULT_IMAGE_FILENAME = "default";
+    public static final String DEFAULT_IMAGE_FORMAT = "jpg";
+    public static final int DEFAULT_IMAGE_SIZE = 1;
+
     private BufferedImage image;
     private BufferedImage originalImage; // Store the original image
-    private String filename = "default";
-    private String format = "jpg";
+    private String filename = DEFAULT_IMAGE_FILENAME;
+    private String format = DEFAULT_IMAGE_FORMAT;
     final private long createdAt = System.currentTimeMillis();
 
     /**
@@ -24,7 +29,7 @@ public class EditableImage {
      * This is useful for creating a placeholder image that can be modified later.
      */
     public EditableImage() {
-        this.image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        this.image = new BufferedImage(DEFAULT_IMAGE_SIZE, EditableImage.DEFAULT_IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
     }
 
     /**
@@ -153,6 +158,12 @@ public class EditableImage {
         return this.image;
     }
 
+    /**
+     * Converts the BufferedImage to a JavaFX Image.
+     * This method is useful for displaying the image in JavaFX applications.
+     *
+     * @return a JavaFX Image object representing the BufferedImage, or null if the image is null
+     */
     public Image toJavaFXImage() {
         // Convert BufferedImage to JavaFX Image
         if (this.image == null) {
@@ -193,12 +204,21 @@ public class EditableImage {
         image.setRGB(x, y, value);
     }
 
-    // Add method to get original image
+    /**
+     * Returns the original BufferedImage that this EditableImage was created from.
+     * This is useful for resetting the image to its original state.
+     *
+     * @return the original BufferedImage instance
+     */
     public BufferedImage getOriginalImage() {
         return originalImage;
     }
 
-    // Add method to reset to original
+
+    /**
+     * Resets the current image to its original state.
+     * This method restores the image to the state it was in when this EditableImage was created.
+     */
     public void resetToOriginal() {
         this.image = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
         this.image.getGraphics().drawImage(originalImage, 0, 0, null);

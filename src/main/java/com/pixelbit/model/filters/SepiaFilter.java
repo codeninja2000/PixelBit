@@ -14,20 +14,11 @@ import java.io.IOException;
  */
 public class SepiaFilter implements Filter {
 
-    public static void main(String[] args) {
-        try {
-            BufferedImage originalImage = ImageIO.read(new File("src/main/resources/dhalia.jpg"));
-            if (originalImage != null) {
-                // Store the processed image returned from apply()
-                BufferedImage processedImage = SepiaFilter.applyf(originalImage);
-                // Save the processed image
-                ImageIO.write(processedImage, "jpg", new File("C:\\Users\\grsim\\IdeaProjects\\PixelBit\\dhalia-sepia.jpg"));
-                System.out.println("Image processed and saved as dhalia_sepia.jpg");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    /**
+     * Default constructor for SepiaFilter.
+     */
+    public SepiaFilter() {}
+
     /**
      * @param image The image to which the filter will be applied.
      * @return
@@ -51,6 +42,13 @@ public class SepiaFilter implements Filter {
         }
                 return sepiaImage;
     }
+/**
+     * Applies the sepia filter to the given image and returns a new image.
+     * This method is an alternative to the apply method, providing a functional interface.
+     *
+     * @param image The image to which the filter will be applied.
+     * @return A new BufferedImage with the sepia effect applied.
+     */
     public static BufferedImage applyf(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -70,18 +68,31 @@ public class SepiaFilter implements Filter {
                 return sepiaImage;
     }
 
+    /**
+     * Clamps the RGB values to ensure they are within the valid range of 0-255.
+     *
+     * @param value The RGB value to clamp.
+     * @return The clamped RGB value.
+     */
     private static int clamp(int value) {
         return Math.max(0, Math.min(255, value));
     }
 
     /**
-     * @return
+     * Returns the name of the filter.
+     *
+     * @return The name of the filter.
      */
     @Override
     public String getName() {
         return "Sepia";
     }
 
+    /**
+     * Returns the file name of the filter.
+     *
+     * @return The file name of the filter.
+     */
     @Override
     public String toString() {
         return String.format("%sFilter", this.getName());

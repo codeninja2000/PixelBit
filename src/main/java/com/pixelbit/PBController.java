@@ -8,6 +8,7 @@ import com.pixelbit.exception.CommandExecException;
 import com.pixelbit.model.PBModel;
 import com.pixelbit.model.filter.FilterType;
 import com.pixelbit.view.PBImageView;
+import com.pixelbit.model.EditableImage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +19,17 @@ import java.util.Map;
  * It also acts as a bridge between the view and the model.
  */
 public class PBController {
-    private final PBModel model;
-    private final PBImageView view;
+    private final PBModel model; // The model that holds the image and command history
+    private final PBImageView view; // The view that displays the image and UI components
+    private final Map<FilterType, Integer> filterApplicationCount = new HashMap<>();
 
+    /**
+     * Constructor for PBController.
+     * Initializes the controller with the model and view.
+     *
+     * @param model The model that holds the image and command history.
+     * @param view  The view that displays the image and UI components.
+     */
     public PBController(PBModel model, PBImageView view) {
         this.model = model;
         this.view = view;
@@ -28,7 +37,7 @@ public class PBController {
         view.updateImage(null);
         updateUndoRedoButtons();
 
-        // Set up event handlers for the view
+        // Set up event handlers for menu items
         view.getOpenItem().setOnAction(_ -> model.getCommandManager().executeCommand(
                 new OpenImageCommand(model, view, view.getScene().getWindow())));
 
@@ -52,11 +61,25 @@ public class PBController {
                 }
         );
 
+        // Set up event handlers for buttons on toolbar
+        view.getUndoButton().setOnAction(_ -> {
+            model.getCommandManager().undo();
+            view.updateImage(model.getImage());
+            updateUndoRedoButtons();
+            resetFilterCounts();
+        });
+
+        view.getRedoButton().setOnAction(_ -> {
+            model.getCommandManager().redo();
+            view.updateImage(model.getImage());
+            updateUndoRedoButtons();
+        });
+
         view.getGrayscaleButton().setOnAction(_ -> applyFilter(FilterType.GRAYSCALE));
         view.getSepiaButton().setOnAction(_ -> applyFilter(FilterType.SEPIA));
         view.getInvertButton().setOnAction(_ -> applyFilter(FilterType.INVERT));
 
-        // Set up slider listeners
+        // Set up adjustment sliders and their listeners
         view.getBrightnessSlider().valueProperty().addListener((obs, oldVal, newVal) -> {
             if (model.getImage() != null) {
                 // Convert slider value (-100 to 100) to a reasonable brightness adjustment
@@ -83,6 +106,7 @@ public class PBController {
                 view.updateImage(model.getImage());
             }
         });
+
         view.getResetButton().setOnAction(_ -> {
             if (model.getImage() != null) {
                 try {
@@ -126,10 +150,64 @@ public class PBController {
             }
         });
 
+        view.getCropButton().setOnAction(_ -> {
+            if (model.getImage() != null) {
+                if (!view.getCropButton().getText().equals("Apply Crop")) {
+                    // Enter crop mode
+                    view.initCropMode();
+                } else {
+                    // Validate and apply crop
+                    if (view.validateCropParameters()) {
+                        try {
+                            Map<String, Object> cropParams = view.getCropParameters();
+                            ApplyFilterCommand command = new ApplyFilterCommand(
+                                    model.getImage(),
+                                    model.getFilterFactory(),
+                                    FilterType.CROP,
+                                    cropParams
+                            );
+
+                            model.getCommandManager().executeCommand(command);
+                            view.updateImage(model.getImage());
+                            updateUndoRedoButtons();
+
+                            // Exit crop mode
+                            view.exitCropMode();
+                        } catch (Exception ex) {
+                            view.showError("Failed to crop image: " + ex.getMessage());
+                        }
+                    }
+                }
+            } else {
+                view.showError("No image loaded");
+            }
+        });
     }
 
-    private final Map<FilterType, Integer> filterApplicationCount = new HashMap<>();
+    /**
+     * Validates the crop parameters before applying the crop filter.
+     *
+     * @param params The parameters for cropping, including x, y, width, and height.
+     * @param image  The image to be cropped.
+     * @return true if the parameters are valid, false otherwise.
+     */
+    private boolean validateCropParams(Map<String, Object> params, EditableImage image) {
+        int x = ((Number) params.get("x")).intValue();
+        int y = ((Number) params.get("y")).intValue();
+        int width = ((Number) params.get("width")).intValue();
+        int height = ((Number) params.get("height")).intValue();
 
+        return x >= 0 && y >= 0 && width > 0 && height > 0 &&
+               x + width <= image.getWidth() &&
+               y + height <= image.getHeight();
+    }
+
+    /**
+     * Applies the specified filter to the current image.
+     * Updates the image view and command history accordingly.
+     *
+     * @param filterType The type of filter to apply.
+     */
     private void applyFilter(FilterType filterType) {
         try {
             if (model.getImage() == null) {
@@ -145,7 +223,10 @@ public class PBController {
             switch (filterType) {
                 case BRIGHTNESS -> parameters.put("brightness", 1.2);
                 case CONTRAST -> parameters.put("contrast", 1.1);
-                case SEPIA, GRAYSCALE -> {
+                case CROP -> {
+                    // crop params handled separately
+                }
+                case SEPIA, GRAYSCALE, INVERT -> {
                 } // No parameters needed
             }
 
@@ -169,11 +250,18 @@ public class PBController {
         }
     }
 
-    // Add this method to reset counts when loading a new image or undoing
+    /**
+     * Resets the filter application counts.
+     * This is called when an undo or redo operation is performed.
+     */
     private void resetFilterCounts() {
         filterApplicationCount.clear();
     }
 
+    /**
+     * Updates the state of the undo and redo buttons based on the command history.
+     * This method is called after executing commands or undo/redo operations.
+     */
     private void updateUndoRedoButtons() {
         view.setUndoEnabled(model.canUndo());
         view.setRedoEnabled(model.canRedo());
