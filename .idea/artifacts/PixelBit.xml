@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="PixelBit">
+    <output-path>$PROJECT_DIR$/out/artifacts/PixelBit</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="com.pixelbit.PBApplication" />
+        <option name="description" value="An image editor." />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="title" value="PixelBit" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="PixelBit.jar">
+        <element id="module-output" name="PixelBit" />
+      </element>
+    </root>
+  </artifact>
+</component>
