@@ -135,7 +135,7 @@ public class ImageUtility {
         if (index > 0 && index < filename.length() - 1) {
             return filename.substring(index + 1).toLowerCase();
         }
-        return "";
+        return "jpg";
     }
 
 }

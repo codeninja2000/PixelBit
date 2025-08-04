@@ -7,6 +7,8 @@ import javafx.stage.Window;
 
 import java.io.File;
 
+import static com.pixelbit.util.ImageUtility.getFileExtension;
+
 /**
  * SaveImageCommand is responsible for saving the current image in the PBModel to a file.
  * It uses a FileChooser to allow the user to select the save location and file type.
@@ -35,7 +37,10 @@ public class SaveImageCommand implements PBCommand{
      */
     @Override
     public void execute() throws CommandExecException {
+        System.out.println("Starting save operation...");
+        
         if (model.getImage() == null || model.getImage().isEmpty()) {
+            System.out.println("Image is null or empty");
             throw new CommandExecException("No image available to save.");
         }
 
@@ -46,16 +51,27 @@ public class SaveImageCommand implements PBCommand{
                 new FileChooser.ExtensionFilter("JPEG Files", "*.jpg", "*.jpeg")
         );
 
+        System.out.println("Showing file chooser...");
         File selectedFile = fileChooser.showSaveDialog(window);
 
         if (selectedFile != null) {
+            System.out.println("Selected file: " + selectedFile.getAbsolutePath());
             try {
+                // Update the format based on the selected file's extension
+                String extension = getFileExtension(selectedFile.getName()).toLowerCase();
+                model.getImage().setFormat(extension);
+                
+                // Save the image
                 model.saveImage(selectedFile);
+                System.out.println("Save completed successfully");
             } catch (Exception e) {
+                System.err.println("Save failed: " + e.getMessage());
+                e.printStackTrace();
                 throw new CommandExecException("Failed to save image: " + e.getMessage(), e);
             }
+        } else {
+            System.out.println("No file selected");
         }
-
     }
 
     /**
