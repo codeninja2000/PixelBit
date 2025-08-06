@@ -19,6 +19,10 @@ import java.util.Map;
  * It also acts as a bridge between the view and the model.
  */
 public class PBController {
+    public static final double DEFAULT_BRIGHTNESS = 1.2;
+    public static final double DEFAULT_CONTRAST = 1.1;
+    public static final double MAX_SLIDER_VALUE = 100.0;
+    public static final double BRIGHTNESS_SCALE_FACTOR = 0.5;
     private final PBModel model; // The model that holds the image and command history
     private final PBImageView view; // The view that displays the image and UI components
     private final Map<FilterType, Integer> filterApplicationCount = new HashMap<>();
@@ -34,58 +38,58 @@ public class PBController {
         this.model = model;
         this.view = view;
 
-        view.updateImage(null);
-        updateUndoRedoButtons();
+        initializeView(view);
 
         // Set up event handlers for menu items
-        view.getOpenItem().setOnAction(_ -> model.getCommandManager().executeCommand(
-                new OpenImageCommand(model, view, view.getScene().getWindow())));
-
-        view.getSaveMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(
-                new SaveImageCommand(model, view.getScene().getWindow())));
-
-        view.getExitItem().setOnAction(_ -> model.getCommandManager().executeCommand(
-                new ExitCommand()));
-
-        view.getUndoMenuItem().setOnAction(_ -> {
-            model.getCommandManager().undo();
-            view.updateImage(model.getImage());
-            updateUndoRedoButtons();
-            resetFilterCounts();
-        });
-
-        view.getRedoMenuItem().setOnAction(_ -> {
-                    model.getCommandManager().redo();
-                    view.updateImage(model.getImage());
-                    updateUndoRedoButtons();
-                }
-        );
+        setupMenuHandlers(model, view);
 
         // Set up event handlers for buttons on toolbar
-        view.getUndoButton().setOnAction(_ -> {
-            model.getCommandManager().undo();
-            view.updateImage(model.getImage());
-            updateUndoRedoButtons();
-            resetFilterCounts();
-        });
-
-        view.getRedoButton().setOnAction(_ -> {
-            model.getCommandManager().redo();
-            view.updateImage(model.getImage());
-            updateUndoRedoButtons();
-        });
-
-        view.getGrayscaleButton().setOnAction(_ -> applyFilter(FilterType.GRAYSCALE));
-        view.getSepiaButton().setOnAction(_ -> applyFilter(FilterType.SEPIA));
-        view.getInvertButton().setOnAction(_ -> applyFilter(FilterType.INVERT));
+        setupToolbarHandlers(model, view);
 
         // Set up adjustment sliders and their listeners
+        setupSliderHandlers(model, view);
+
+        view.getCropButton().setOnAction(_ -> {
+            if (model.getImage() != null) {
+                if (!view.getCropButton().getText().equals("Apply Crop")) {
+                    // Enter crop mode
+                    view.initCropMode();
+                } else {
+                    // Validate and apply crop
+                    if (view.validateCropParameters()) {
+                        try {
+                            Map<String, Object> cropParams = view.getCropParameters();
+                            ApplyFilterCommand command = new ApplyFilterCommand(
+                                    model.getImage(),
+                                    model.getFilterFactory(),
+                                    FilterType.CROP,
+                                    cropParams
+                            );
+
+                            model.getCommandManager().executeCommand(command);
+                            view.updateImage(model.getImage());
+                            updateUndoRedoButtons();
+
+                            // Exit crop mode
+                            view.exitCropMode();
+                        } catch (Exception ex) {
+                            view.showError("Failed to crop image: " + ex.getMessage());
+                        }
+                    }
+                }
+            } else {
+                view.showError("No image loaded");
+            }
+        });
+    }
+
+    private void setupSliderHandlers(PBModel model, PBImageView view) {
         view.getBrightnessSlider().valueProperty().addListener((obs, oldVal, newVal) -> {
             if (model.getImage() != null) {
                 // Convert slider value (-100 to 100) to a reasonable brightness adjustment
                 // Divide by 100 to get a value between -1.0 and 1.0, then multiply by 0.5
                 // to make the adjustment more subtle (-0.5 to 0.5)
-                int brightnessAdjustment = (int) ((newVal.doubleValue() / 100.0) * 0.5 * 255);
+                int brightnessAdjustment = (int) ((newVal.doubleValue() / MAX_SLIDER_VALUE) * BRIGHTNESS_SCALE_FACTOR * 255);
 
                 Map<String, Object> params = new HashMap<>();
                 params.put("brightness", brightnessAdjustment);
@@ -149,39 +153,55 @@ public class PBController {
                 }
             }
         });
+    }
 
-        view.getCropButton().setOnAction(_ -> {
-            if (model.getImage() != null) {
-                if (!view.getCropButton().getText().equals("Apply Crop")) {
-                    // Enter crop mode
-                    view.initCropMode();
-                } else {
-                    // Validate and apply crop
-                    if (view.validateCropParameters()) {
-                        try {
-                            Map<String, Object> cropParams = view.getCropParameters();
-                            ApplyFilterCommand command = new ApplyFilterCommand(
-                                    model.getImage(),
-                                    model.getFilterFactory(),
-                                    FilterType.CROP,
-                                    cropParams
-                            );
-
-                            model.getCommandManager().executeCommand(command);
-                            view.updateImage(model.getImage());
-                            updateUndoRedoButtons();
-
-                            // Exit crop mode
-                            view.exitCropMode();
-                        } catch (Exception ex) {
-                            view.showError("Failed to crop image: " + ex.getMessage());
-                        }
-                    }
-                }
-            } else {
-                view.showError("No image loaded");
-            }
+    private void setupToolbarHandlers(PBModel model, PBImageView view) {
+        view.getUndoButton().setOnAction(_ -> {
+            model.getCommandManager().undo();
+            view.updateImage(model.getImage());
+            updateUndoRedoButtons();
+            resetFilterCounts();
         });
+
+        view.getRedoButton().setOnAction(_ -> {
+            model.getCommandManager().redo();
+            view.updateImage(model.getImage());
+            updateUndoRedoButtons();
+        });
+
+        view.getGrayscaleButton().setOnAction(_ -> applyFilter(FilterType.GRAYSCALE));
+        view.getSepiaButton().setOnAction(_ -> applyFilter(FilterType.SEPIA));
+        view.getInvertButton().setOnAction(_ -> applyFilter(FilterType.INVERT));
+    }
+
+    private void setupMenuHandlers(PBModel model, PBImageView view) {
+        view.getOpenItem().setOnAction(_ -> model.getCommandManager().executeCommand(
+                new OpenImageCommand(model, view, view.getScene().getWindow())));
+
+        view.getSaveMenuItem().setOnAction(_ -> model.getCommandManager().executeCommand(
+                new SaveImageCommand(model, view.getScene().getWindow())));
+
+        view.getExitItem().setOnAction(_ -> model.getCommandManager().executeCommand(
+                new ExitCommand()));
+
+        view.getUndoMenuItem().setOnAction(_ -> {
+            model.getCommandManager().undo();
+            view.updateImage(model.getImage());
+            updateUndoRedoButtons();
+            resetFilterCounts();
+        });
+
+        view.getRedoMenuItem().setOnAction(_ -> {
+                    model.getCommandManager().redo();
+                    view.updateImage(model.getImage());
+                    updateUndoRedoButtons();
+                }
+        );
+    }
+
+    private void initializeView(PBImageView view) {
+        view.updateImage(null);
+        updateUndoRedoButtons();
     }
 
     /**
@@ -221,8 +241,8 @@ public class PBController {
 
             Map<String, Object> parameters = new HashMap<>();
             switch (filterType) {
-                case BRIGHTNESS -> parameters.put("brightness", 1.2);
-                case CONTRAST -> parameters.put("contrast", 1.1);
+                case BRIGHTNESS -> parameters.put("brightness", DEFAULT_BRIGHTNESS);
+                case CONTRAST -> parameters.put("contrast", DEFAULT_CONTRAST);
                 case CROP -> {
                     // crop params handled separately
                 }
